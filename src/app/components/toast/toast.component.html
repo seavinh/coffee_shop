@@ -1,0 +1,18 @@
+<div class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none">
+  @for (t of toasts$ | async; track t.id) {
+    <div class="pointer-events-auto p-4 rounded-2xl glass-panel border border-amber-500/30 shadow-2xl flex items-start gap-3 animate-fade-in">
+      <div [class]="getIconBgClass(t.type)" class="w-8 h-8 rounded-full flex items-center justify-center text-lg flex-shrink-0">
+        <i [class]="getIconClass(t.type)"></i>
+      </div>
+
+      <div class="flex-grow">
+        <h4 class="font-bold text-xs text-cream">{{ t.title }}</h4>
+        <p class="text-[11px] text-cream-muted leading-tight mt-0.5">{{ t.message }}</p>
+      </div>
+
+      <button (click)="dismiss(t.id)" class="text-cream-muted hover:text-white border-0 bg-transparent text-sm cursor-pointer">
+        <i class="ri-close-line"></i>
+      </button>
+    </div>
+  }
+</div>

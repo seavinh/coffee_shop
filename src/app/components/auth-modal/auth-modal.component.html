@@ -1,0 +1,99 @@
+@if (isOpen) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+    
+    <div class="relative w-full max-w-md glass-panel p-8 rounded-3xl border border-amber-500/30 shadow-2xl space-y-6">
+      
+      <button (click)="close.emit()" class="absolute top-4 right-4 text-cream-muted hover:text-white border-0 bg-transparent text-lg cursor-pointer">
+        <i class="ri-close-line"></i>
+      </button>
+
+      <div class="text-center space-y-2">
+        <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-600 to-amber-400 text-black flex items-center justify-center text-2xl font-bold mx-auto shadow-lg shadow-amber-500/30">
+          <i class="ri-cup-fill"></i>
+        </div>
+        <h2 class="font-serif text-2xl font-bold text-gradient">
+          {{ mode === 'login' ? 'Welcome Back' : (mode === 'register' ? 'Join AURA Club' : 'Recover Password') }}
+        </h2>
+        <p class="text-xs text-cream-muted">
+          {{ mode === 'forgot' ? 'Enter your email to receive a password reset link.' : 'Sign in to manage orders & rewards.' }}
+        </p>
+      </div>
+
+      <div class="grid grid-cols-3 bg-white/5 border border-white/10 p-1 rounded-xl text-xs font-bold text-center">
+        <button 
+          (click)="mode = 'login'" 
+          [class.bg-amber-500]="mode === 'login'" 
+          [class.text-black]="mode === 'login'"
+          [class.text-cream]="mode !== 'login'"
+          class="py-2 rounded-lg transition-all border-0 cursor-pointer">
+          Sign In
+        </button>
+        <button 
+          (click)="mode = 'register'" 
+          [class.bg-amber-500]="mode === 'register'" 
+          [class.text-black]="mode === 'register'"
+          [class.text-cream]="mode !== 'register'"
+          class="py-2 rounded-lg transition-all border-0 cursor-pointer">
+          Register
+        </button>
+        <button 
+          (click)="mode = 'forgot'" 
+          [class.bg-amber-500]="mode === 'forgot'" 
+          [class.text-black]="mode === 'forgot'"
+          [class.text-cream]="mode !== 'forgot'"
+          class="py-2 rounded-lg transition-all border-0 cursor-pointer">
+          Forgot?
+        </button>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="space-y-4">
+        @if (mode === 'register') {
+          <div>
+            <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">Full Name</label>
+            <input 
+              type="text" 
+              [(ngModel)]="fullName" 
+              name="fullName"
+              placeholder="e.g. Alex Mercer"
+              required
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-cream focus:outline-none focus:border-amber-400"
+            />
+          </div>
+        }
+
+        <div>
+          <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">Email Address</label>
+          <input 
+            type="email" 
+            [(ngModel)]="email" 
+            name="email"
+            placeholder="barista@auracoffee.com"
+            required
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-cream focus:outline-none focus:border-amber-400"
+          />
+        </div>
+
+        @if (mode !== 'forgot') {
+          <div>
+            <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">Password</label>
+            <input 
+              type="password" 
+              [(ngModel)]="password" 
+              name="password"
+              placeholder="••••••••"
+              required
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-cream focus:outline-none focus:border-amber-400"
+            />
+          </div>
+        }
+
+        <button type="submit" [disabled]="loading" class="btn-primary w-full text-sm">
+          <i [class]="loading ? 'ri-loader-4-line animate-spin' : getButtonIcon()"></i>
+          {{ getButtonText() }}
+        </button>
+      </form>
+
+    </div>
+
+  </div>
+}

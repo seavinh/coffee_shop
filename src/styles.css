@@ -1,0 +1,167 @@
+/* AURA Artisan Coffee Premium Design System */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,900;1,600&display=swap');
+
+:root {
+  --bg-dark: #0D0704;
+  --bg-surface: #140C07;
+  --bg-card: #1C120B;
+  --bg-card-hover: #271A10;
+  --bg-glass: rgba(22, 13, 8, 0.85);
+  
+  --color-amber: #F0A500;
+  --color-amber-light: #FFD166;
+  --color-gold: #E5B25D;
+  --color-cream: #FDF8F3;
+  --color-cream-muted: #B8A89A;
+  
+  --border-light: rgba(240, 165, 0, 0.15);
+  --border-glow: rgba(240, 165, 0, 0.45);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  background-color: var(--bg-dark);
+  color: var(--color-cream);
+  font-family: 'Outfit', sans-serif;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: #332014;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-amber);
+}
+
+.font-serif { font-family: 'Playfair Display', Georgia, serif !important; }
+.font-sans { font-family: 'Outfit', sans-serif !important; }
+
+.text-gradient {
+  background: linear-gradient(135deg, #FFF6EE 15%, #F0A500 70%, #E5B25D 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.glass-panel {
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-light);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+}
+
+.card-coffee {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.card-coffee:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-glow);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 40px rgba(240, 165, 0, 0.25);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #F0A500 0%, #C78200 100%);
+  color: #0A0503;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px rgba(240, 165, 0, 0.3);
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #FFD166 0%, #F0A500 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(240, 165, 0, 0.5);
+  color: #000;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(253, 248, 243, 0.06);
+  color: var(--color-cream);
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 9999px;
+  border: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.btn-secondary:hover {
+  background: rgba(253, 248, 243, 0.12);
+  border-color: var(--color-amber);
+  color: #FFF;
+}
+
+.badge-gold {
+  background: rgba(240, 165, 0, 0.12);
+  color: var(--color-amber-light);
+  border: 1px solid rgba(240, 165, 0, 0.35);
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-status {
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.badge-status.pending { background: rgba(234, 179, 8, 0.18); color: #FACC15; border: 1px solid rgba(234, 179, 8, 0.4); }
+.badge-status.preparing { background: rgba(59, 130, 246, 0.18); color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.4); }
+.badge-status.ready { background: rgba(16, 185, 129, 0.18); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.4); }
+.badge-status.completed { background: rgba(156, 163, 175, 0.18); color: #9CA3AF; border: 1px solid rgba(156, 163, 175, 0.3); }
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-float { animation: floatSlow 5s ease-in-out infinite; }

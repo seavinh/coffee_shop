@@ -1,0 +1,90 @@
+<div class="max-w-4xl mx-auto px-4 lg:px-8 py-10 space-y-8 pb-24">
+  <div class="space-y-2">
+    <span class="badge-gold">Live Tracking</span>
+    <h1 class="font-serif text-3xl lg:text-4xl font-bold text-gradient">Your Coffee Orders</h1>
+    <p class="text-xs text-cream-muted font-light">Monitor your order status in real time from bean grinding to final foam.</p>
+  </div>
+
+  <div class="space-y-6">
+    @if (orders.length > 0) {
+      @for (order of orders; track order.id) {
+        <div class="glass-panel rounded-3xl border border-white/10 p-6 space-y-6">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+            <div>
+              <div class="flex items-center gap-3">
+                <h3 class="font-serif text-xl font-bold text-cream">{{ order.id }}</h3>
+                <span [class]="'badge-status ' + order.status">
+                  <i class="ri-checkbox-blank-circle-fill text-[8px]"></i>
+                  {{ order.status.toUpperCase() }}
+                </span>
+              </div>
+              <p class="text-xs text-cream-muted mt-1">Placed on {{ order.createdAt | date:'medium' }}</p>
+            </div>
+
+            <div class="text-left sm:text-right">
+              <span class="text-xs text-cream-muted block">Total Paid</span>
+              <span class="text-xl font-extrabold text-amber-400">\${{ order.totalAmount.toFixed(2) }}</span>
+            </div>
+          </div>
+
+          <div class="py-2">
+            <div class="grid grid-cols-4 gap-2 text-center text-xs">
+              <div class="space-y-2">
+                <div [class]="getStepClass(order.status, 1)" class="w-10 h-10 rounded-full mx-auto flex items-center justify-center border text-sm transition-all">
+                  <i class="ri-file-list-3-line"></i>
+                </div>
+                <span [class]="getStepTextClass(order.status, 1)" class="block font-bold">Received</span>
+              </div>
+
+              <div class="space-y-2">
+                <div [class]="getStepClass(order.status, 2)" class="w-10 h-10 rounded-full mx-auto flex items-center justify-center border text-sm transition-all">
+                  <i class="ri-fire-line"></i>
+                </div>
+                <span [class]="getStepTextClass(order.status, 2)" class="block font-bold">Brewing</span>
+              </div>
+
+              <div class="space-y-2">
+                <div [class]="getStepClass(order.status, 3)" class="w-10 h-10 rounded-full mx-auto flex items-center justify-center border text-sm transition-all">
+                  <i class="ri-cup-line"></i>
+                </div>
+                <span [class]="getStepTextClass(order.status, 3)" class="block font-bold">Ready</span>
+              </div>
+
+              <div class="space-y-2">
+                <div [class]="getStepClass(order.status, 4)" class="w-10 h-10 rounded-full mx-auto flex items-center justify-center border text-sm transition-all">
+                  <i class="ri-checkbox-circle-line"></i>
+                </div>
+                <span [class]="getStepTextClass(order.status, 4)" class="block font-bold">Completed</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-black/30 border border-white/5 rounded-2xl p-4 space-y-3 text-xs">
+            <div class="flex items-center justify-between text-cream font-bold border-b border-white/5 pb-2">
+              <span>Customer: {{ order.customerName }} ({{ order.orderType | titlecase }})</span>
+              <span class="text-amber-400">{{ order.customerPhone }}</span>
+            </div>
+            
+            <div class="space-y-2 pt-2">
+              @for (item of order.items; track item.id) {
+                <div class="flex justify-between items-center text-cream">
+                  <div class="flex items-center gap-2">
+                    <span class="font-bold text-amber-400">{{ item.quantity }}x</span>
+                    <span>{{ item.product.name }}</span>
+                  </div>
+                  <span class="font-semibold">\${{ item.totalPrice.toFixed(2) }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    } @else {
+      <div class="glass-panel p-12 rounded-3xl text-center space-y-4">
+        <i class="ri-history-line text-4xl text-amber-400"></i>
+        <h3 class="font-serif text-xl font-bold text-cream">No Active Orders Found</h3>
+        <p class="text-xs text-cream-muted">Order a fresh espresso or cold brew to start tracking!</p>
+      </div>
+    }
+  </div>
+</div>

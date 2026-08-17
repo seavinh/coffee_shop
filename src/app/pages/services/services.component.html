@@ -1,0 +1,131 @@
+<div class="max-w-7xl mx-auto px-4 lg:px-12 py-10 space-y-16 pb-24">
+  <div class="text-center max-w-2xl mx-auto space-y-3">
+    <span class="badge-gold">Bespoke Roastery Solutions</span>
+    <h1 class="font-serif text-4xl lg:text-5xl font-bold text-gradient">Our Specialty Coffee Services</h1>
+    <p class="text-sm text-cream-muted font-light">From mobile espresso bars for private events to corporate coffee bean subscriptions and barista masterclasses.</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div class="glass-panel p-8 rounded-3xl border border-white/10 space-y-6 hover:border-amber-500/40 transition-all flex flex-col justify-between">
+      <div class="space-y-4">
+        <div class="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-3xl">
+          <i class="ri-cup-fill"></i>
+        </div>
+        <h2 class="font-serif text-2xl font-bold text-cream">Mobile Espresso Bar Catering</h2>
+        <p class="text-xs text-cream-muted leading-relaxed font-light">
+          Bring a full-service artisanal coffee bar to your wedding, corporate pop-up, or private gala. Includes commercial La Marzocco machine, master baristas, organic oat milk, and full drink menu.
+        </p>
+        <ul class="space-y-2 text-xs text-amber-300 list-none p-0">
+          <li class="flex items-center gap-2"><i class="ri-checkbox-circle-line"></i> Serves 50 to 500+ guests</li>
+          <li class="flex items-center gap-2"><i class="ri-checkbox-circle-line"></i> Full custom drink menu & latte art</li>
+          <li class="flex items-center gap-2"><i class="ri-checkbox-circle-line"></i> Custom branded coffee cups option</li>
+        </ul>
+      </div>
+      <button (click)="openInquiryModal('catering')" class="btn-primary w-full text-xs">
+        Request Catering Quote
+      </button>
+    </div>
+
+    <div class="glass-panel p-8 rounded-3xl border border-white/10 space-y-6 hover:border-amber-500/40 transition-all flex flex-col justify-between">
+      <div class="space-y-4">
+        <div class="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-3xl">
+          <i class="ri-award-line"></i>
+        </div>
+        <h2 class="font-serif text-2xl font-bold text-cream">Barista Workshops & Cupping</h2>
+        <p class="text-xs text-cream-muted leading-relaxed font-light">
+          Learn espresso extraction science, milk steaming chemistry, latte art techniques, or V60 pour-over precision directly from our Q-Graders.
+        </p>
+        <ul class="space-y-2 text-xs text-amber-300 list-none p-0">
+          <li class="flex items-center gap-2"><i class="ri-checkbox-circle-line"></i> Weekend 2-hour intensive sessions</li>
+          <li class="flex items-center gap-2"><i class="ri-checkbox-circle-line"></i> Hands-on machine practice</li>
+          <li class="flex items-center gap-2"><i class="ri-checkbox-circle-line"></i> Complimentary 250g bag included</li>
+        </ul>
+      </div>
+      <button (click)="openInquiryModal('workshop')" class="btn-primary w-full text-xs">
+        Book Workshop Spot
+      </button>
+    </div>
+
+    <div class="glass-panel p-8 rounded-3xl border border-white/10 space-y-6 hover:border-amber-500/40 transition-all flex flex-col justify-between">
+      <div class="space-y-4">
+        <div class="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-3xl">
+          <i class="ri-repeat-2-line"></i>
+        </div>
+        <h2 class="font-serif text-2xl font-bold text-cream">Monthly Bean Subscriptions</h2>
+        <p class="text-xs text-cream-muted leading-relaxed font-light">
+          Never run out of fresh beans. Receive curated single-origin roasts delivered 24 hours after roasting directly to your home or workplace.
+        </p>
+        <ul class="space-y-2 text-xs text-amber-300 list-none p-0">
+          <li class="flex items-center gap-2"><i class="ri-checkbox-circle-line"></i> Flexible delivery intervals (Weekly/Monthly)</li>
+          <li class="flex items-center gap-2"><i class="ri-checkbox-circle-line"></i> 15% discount on retail pricing</li>
+          <li class="flex items-center gap-2"><i class="ri-checkbox-circle-line"></i> Free shipping nationwide</li>
+        </ul>
+      </div>
+      <button (click)="openInquiryModal('subscription')" class="btn-primary w-full text-xs">
+        Subscribe & Save 15%
+      </button>
+    </div>
+
+    <div class="glass-panel p-8 rounded-3xl border border-white/10 space-y-6 hover:border-amber-500/40 transition-all flex flex-col justify-between">
+      <div class="space-y-4">
+        <div class="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-3xl">
+          <i class="ri-store-3-line"></i>
+        </div>
+        <h2 class="font-serif text-2xl font-bold text-cream">Wholesale Coffee Supply</h2>
+        <p class="text-xs text-cream-muted leading-relaxed font-light">
+          Elevate your restaurant, hotel, or boutique cafe with custom espresso blends, barista training support, and commercial equipment guidance.
+        </p>
+        <ul class="space-y-2 text-xs text-amber-300 list-none p-0">
+          <li class="flex items-center gap-2"><i class="ri-checkbox-circle-line"></i> Bulk 1kg & 5kg roaster bags</li>
+          <li class="flex items-center gap-2"><i class="ri-checkbox-circle-line"></i> Free barista training for staff</li>
+          <li class="flex items-center gap-2"><i class="ri-checkbox-circle-line"></i> Dedicated account specialist</li>
+        </ul>
+      </div>
+      <button (click)="openInquiryModal('wholesale')" class="btn-primary w-full text-xs">
+        Apply for Wholesale Account
+      </button>
+    </div>
+  </div>
+
+  @if (showModal) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+      <div class="relative w-full max-w-lg glass-panel p-8 rounded-3xl border border-amber-500/30 shadow-2xl space-y-6">
+        <button (click)="showModal = false" class="absolute top-4 right-4 text-cream-muted hover:text-white border-0 bg-transparent text-lg cursor-pointer">
+          <i class="ri-close-line"></i>
+        </button>
+
+        <div class="space-y-1">
+          <span class="badge-gold">Service Inquiry</span>
+          <h3 class="font-serif text-2xl font-bold text-cream">Request Service Details</h3>
+        </div>
+
+        <form (ngSubmit)="submitInquiry()" class="space-y-4">
+          <div>
+            <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">Full Name</label>
+            <input type="text" [(ngModel)]="form.name" name="name" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-cream focus:outline-none focus:border-amber-400"/>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">Email</label>
+              <input type="email" [(ngModel)]="form.email" name="email" required class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-cream focus:outline-none focus:border-amber-400"/>
+            </div>
+            <div>
+              <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">Phone</label>
+              <input type="tel" [(ngModel)]="form.phone" name="phone" required class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-cream focus:outline-none focus:border-amber-400"/>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">Event / Requirement Details</label>
+            <textarea rows="3" [(ngModel)]="form.message" name="message" placeholder="Include guest count, event date, or preferred bean origins..." required class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-cream focus:outline-none focus:border-amber-400"></textarea>
+          </div>
+
+          <button type="submit" class="btn-primary w-full text-xs">
+            <i class="ri-send-plane-fill"></i> Submit Service Inquiry
+          </button>
+        </form>
+      </div>
+    </div>
+  }
+</div>

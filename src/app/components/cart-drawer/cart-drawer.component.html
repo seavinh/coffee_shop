@@ -1,0 +1,146 @@
+@if (isOpen$ | async) {
+  <div class="fixed inset-0 z-50 overflow-hidden">
+    <div (click)="closeDrawer()" class="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity"></div>
+
+    <div class="absolute inset-y-0 right-0 max-w-full flex pl-10">
+      <div class="w-screen max-w-md glass-panel border-l border-amber-500/20 shadow-2xl flex flex-col animate-slide-right">
+        
+        <div class="p-6 border-b border-white/10 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg">
+              <i class="ri-shopping-bag-3-fill"></i>
+            </div>
+            <div>
+              <h2 class="font-serif text-xl font-bold text-cream">Your Order Cart</h2>
+              <p class="text-xs text-cream-muted">{{ cartItemCount }} item(s) selected</p>
+            </div>
+          </div>
+
+          <button (click)="closeDrawer()" class="w-8 h-8 rounded-full border border-white/10 text-cream hover:bg-white/10 flex items-center justify-center">
+            <i class="ri-close-line"></i>
+          </button>
+        </div>
+
+        <div class="flex-grow p-6 overflow-y-auto space-y-4">
+          @if (items.length > 0) {
+            @for (item of items; track item.id) {
+              <div class="bg-white/5 border border-white/10 p-4 rounded-2xl relative group">
+                <div class="flex items-start gap-3">
+                  <img [src]="item.product.imageUrl" [alt]="item.product.name" class="w-16 h-16 rounded-xl object-cover border border-white/10"/>
+                  
+                  <div class="flex-grow">
+                    <h4 class="font-bold text-sm text-cream">{{ item.product.name }}</h4>
+                    
+                    <div class="flex flex-wrap gap-1 mt-1 text-[10px] text-amber-300">
+                      @if (item.customization.size) {
+                        <span class="bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+                          {{ item.customization.size }}
+                        </span>
+                      }
+                      @if (item.customization.milk !== 'None') {
+                        <span class="bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+                          {{ item.customization.milk }}
+                        </span>
+                      }
+                    </div>
+
+                    <div class="flex items-center justify-between mt-3">
+                      <span class="text-sm font-extrabold text-amber-400">\${{ item.totalPrice.toFixed(2) }}</span>
+                      
+                      <div class="flex items-center gap-2 bg-black/40 border border-white/10 px-2 py-1 rounded-full text-xs">
+                        <button (click)="updateQuantity(item.id, -1)" class="w-5 h-5 rounded-full hover:bg-white/10 text-cream flex items-center justify-center font-bold">-</button>
+                        <span class="font-bold text-white px-1">{{ item.quantity }}</span>
+                        <button (click)="updateQuantity(item.id, 1)" class="w-5 h-5 rounded-full hover:bg-white/10 text-cream flex items-center justify-center font-bold">+</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button (click)="removeItem(item.id)" class="text-cream-muted hover:text-red-400 text-sm p-1 border-0 bg-transparent cursor-pointer">
+                    <i class="ri-delete-bin-line"></i>
+                  </button>
+                </div>
+              </div>
+            }
+          } @else {
+            <div class="text-center py-16 space-y-4">
+              <div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 text-amber-400 flex items-center justify-center text-3xl mx-auto">
+                <i class="ri-cup-line"></i>
+              </div>
+              <h3 class="font-serif text-lg font-bold text-cream">Your cart is empty</h3>
+              <p class="text-xs text-cream-muted max-w-xs mx-auto">Discover our handcrafted beverages and freshly baked pastries to start an order.</p>
+            </div>
+          }
+        </div>
+
+        @if (items.length > 0) {
+          <div class="p-6 border-t border-white/10 bg-black/50 space-y-4">
+            <div>
+              <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">Order Fulfillment</label>
+              <div class="grid grid-cols-2 gap-2">
+                <button 
+                  (click)="orderType = 'pickup'"
+                  [class.border-amber-400]="orderType === 'pickup'"
+                  [class.bg-amber-500]="orderType === 'pickup'"
+                  [class.text-black]="orderType === 'pickup'"
+                  class="py-2 px-3 rounded-xl border border-white/10 text-xs font-bold text-cream flex items-center justify-center gap-2 cursor-pointer">
+                  <i class="ri-store-2-line text-amber-400"></i> Counter Pickup
+                </button>
+                <button 
+                  (click)="orderType = 'delivery'"
+                  [class.border-amber-400]="orderType === 'delivery'"
+                  [class.bg-amber-500]="orderType === 'delivery'"
+                  [class.text-black]="orderType === 'delivery'"
+                  class="py-2 px-3 rounded-xl border border-white/10 text-xs font-bold text-cream flex items-center justify-center gap-2 cursor-pointer">
+                  <i class="ri-e-bike-2-line text-amber-400"></i> Door Delivery
+                </button>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <input 
+                type="text" 
+                [(ngModel)]="customerName" 
+                placeholder="Full Name" 
+                class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-cream focus:outline-none focus:border-amber-400"
+              />
+              <input 
+                type="tel" 
+                [(ngModel)]="customerPhone" 
+                placeholder="Phone Number (e.g. +1 415-555-0100)" 
+                class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-cream focus:outline-none focus:border-amber-400"
+              />
+              @if (orderType === 'delivery') {
+                <input 
+                  type="text" 
+                  [(ngModel)]="deliveryAddress" 
+                  placeholder="Delivery Address" 
+                  class="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-cream focus:outline-none focus:border-amber-400"
+                />
+              }
+            </div>
+
+            <div class="space-y-1.5 pt-2 border-t border-white/10 text-xs">
+              <div class="flex justify-between text-cream-muted">
+                <span>Subtotal</span>
+                <span>\${{ subtotal.toFixed(2) }}</span>
+              </div>
+              <div class="flex justify-between text-cream-muted">
+                <span>Estimated Tax (8%)</span>
+                <span>\${{ tax.toFixed(2) }}</span>
+              </div>
+              <div class="flex justify-between text-base font-extrabold text-cream pt-1">
+                <span>Total Amount</span>
+                <span class="text-amber-400">\${{ total.toFixed(2) }}</span>
+              </div>
+            </div>
+
+            <button (click)="onSubmitOrder()" class="btn-primary w-full text-sm">
+              <i class="ri-check-double-line"></i> Place Coffee Order (\${{ total.toFixed(2) }})
+            </button>
+          </div>
+        }
+
+      </div>
+    </div>
+  </div>
+}

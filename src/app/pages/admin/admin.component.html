@@ -1,0 +1,212 @@
+<div class="max-w-7xl mx-auto px-4 lg:px-12 py-10 space-y-8 pb-24">
+  <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/10 pb-6">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="badge-gold"><i class="ri-shield-user-line"></i> Operations Center</span>
+        <span class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full font-extrabold flex items-center gap-1.5 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Live Supabase Engine
+        </span>
+      </div>
+      <h1 class="font-serif text-3xl lg:text-5xl font-bold text-gradient mt-1">Admin Operations Center</h1>
+    </div>
+
+    <div class="flex items-center gap-4 text-xs">
+      <div class="glass-panel px-5 py-3 rounded-2xl text-center border border-white/10 shadow-lg">
+        <span class="text-cream-muted text-[10px] uppercase font-bold tracking-wider block">Pending Orders</span>
+        <span class="text-2xl font-extrabold text-amber-400">{{ pendingCount }}</span>
+      </div>
+      <div class="glass-panel px-5 py-3 rounded-2xl text-center border border-white/10 shadow-lg">
+        <span class="text-cream-muted text-[10px] uppercase font-bold tracking-wider block">Total Revenue</span>
+        <span class="text-2xl font-extrabold text-emerald-400">\${{ totalRevenue.toFixed(2) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-3 border-b border-white/10 pb-4 overflow-x-auto">
+    <button 
+      (click)="activeTab = 'orders'"
+      [class.bg-amber-500]="activeTab === 'orders'"
+      [class.text-black]="activeTab === 'orders'"
+      [class.text-cream]="activeTab !== 'orders'"
+      class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all border border-white/10 cursor-pointer flex items-center gap-2 shadow-sm">
+      <i class="ri-dashboard-3-line"></i> Kitchen Orders Queue
+    </button>
+
+    <button 
+      (click)="activeTab = 'products'"
+      [class.bg-amber-500]="activeTab === 'products'"
+      [class.text-black]="activeTab === 'products'"
+      [class.text-cream]="activeTab !== 'products'"
+      class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all border border-white/10 cursor-pointer flex items-center gap-2 shadow-sm">
+      <i class="ri-shopping-bag-3-line"></i> Product Catalog CRUD ({{ products.length }})
+    </button>
+
+    <button 
+      (click)="activeTab = 'inquiries'"
+      [class.bg-amber-500]="activeTab === 'inquiries'"
+      [class.text-black]="activeTab === 'inquiries'"
+      [class.text-cream]="activeTab !== 'inquiries'"
+      class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all border border-white/10 cursor-pointer flex items-center gap-2 shadow-sm">
+      <i class="ri-customer-service-2-line"></i> Service Inquiries ({{ inquiries.length }})
+    </button>
+  </div>
+
+  @if (activeTab === 'orders') {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="space-y-4">
+        <div class="bg-amber-500/10 border border-amber-500/30 px-4 py-3 rounded-2xl flex items-center justify-between shadow-sm">
+          <span class="font-bold text-xs text-amber-300 flex items-center gap-2">
+            <i class="ri-time-line"></i> PENDING ({{ getOrdersByStatus('pending').length }})
+          </span>
+        </div>
+
+        @for (order of getOrdersByStatus('pending'); track order.id) {
+          <div class="card-coffee p-5 space-y-4 border-amber-500/20">
+            <div class="flex justify-between items-start">
+              <div>
+                <h4 class="font-serif font-bold text-lg text-cream">{{ order.id }}</h4>
+                <p class="text-xs text-cream font-semibold">{{ order.customerName }} • {{ order.orderType | titlecase }}</p>
+              </div>
+              <span class="text-amber-400 font-extrabold text-base">\${{ order.totalAmount.toFixed(2) }}</span>
+            </div>
+
+            <button (click)="updateOrderStatus(order.id, 'preparing')" class="btn-primary w-full !py-2.5 text-xs">
+              <i class="ri-fire-line"></i> Start Brewing (Preparing)
+            </button>
+          </div>
+        }
+      </div>
+
+      <div class="space-y-4">
+        <div class="bg-blue-500/10 border border-blue-500/30 px-4 py-3 rounded-2xl flex items-center justify-between shadow-sm">
+          <span class="font-bold text-xs text-blue-400 flex items-center gap-2">
+            <i class="ri-fire-line"></i> PREPARING ({{ getOrdersByStatus('preparing').length }})
+          </span>
+        </div>
+
+        @for (order of getOrdersByStatus('preparing'); track order.id) {
+          <div class="card-coffee p-5 space-y-4 border-blue-500/30">
+            <div class="flex justify-between items-start">
+              <div>
+                <h4 class="font-serif font-bold text-lg text-cream">{{ order.id }}</h4>
+                <p class="text-xs text-cream font-semibold">{{ order.customerName }}</p>
+              </div>
+              <span class="badge-status preparing">PREPARING</span>
+            </div>
+
+            <button (click)="updateOrderStatus(order.id, 'ready')" class="btn-primary w-full !py-2.5 text-xs !from-blue-600 !to-blue-400">
+              <i class="ri-checkbox-circle-line"></i> Mark Ready for Pickup
+            </button>
+          </div>
+        }
+      </div>
+
+      <div class="space-y-4">
+        <div class="bg-emerald-500/10 border border-emerald-500/30 px-4 py-3 rounded-2xl flex items-center justify-between shadow-sm">
+          <span class="font-bold text-xs text-emerald-400 flex items-center gap-2">
+            <i class="ri-checkbox-circle-line"></i> READY / COMPLETED
+          </span>
+        </div>
+
+        @for (order of readyAndCompletedOrders; track order.id) {
+          <div class="card-coffee p-5 space-y-3 opacity-95">
+            <div class="flex justify-between items-center">
+              <div>
+                <h4 class="font-serif font-bold text-base text-cream">{{ order.id }} - {{ order.customerName }}</h4>
+                <span [class]="'badge-status ' + order.status">{{ order.status.toUpperCase() }}</span>
+              </div>
+              @if (order.status === 'ready') {
+                <button (click)="updateOrderStatus(order.id, 'completed')" class="btn-secondary !py-1 !px-3 text-xs">
+                  Complete
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (activeTab === 'products') {
+    <div class="space-y-6">
+      <div class="flex items-center justify-between">
+        <h3 class="font-serif text-2xl font-bold text-cream">Product & Menu Management</h3>
+        <button (click)="openAddProductModal()" class="btn-primary text-xs">
+          <i class="ri-add-line"></i> Add New Product
+        </button>
+      </div>
+
+      <div class="glass-panel rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-white/10 bg-white/5 text-amber-400 font-bold uppercase tracking-wider">
+                <th class="p-4">Item</th>
+                <th class="p-4">Category</th>
+                <th class="p-4">Price</th>
+                <th class="p-4">Availability</th>
+                <th class="p-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5 text-cream">
+              @for (prod of products; track prod.id) {
+                <tr class="hover:bg-white/5 transition-colors">
+                  <td class="p-4 flex items-center gap-3">
+                    <img [src]="prod.imageUrl" [alt]="prod.name" class="w-12 h-12 rounded-xl object-cover border border-white/10"/>
+                    <div>
+                      <span class="font-bold block text-sm">{{ prod.name }}</span>
+                    </div>
+                  </td>
+                  <td class="p-4 uppercase font-bold text-[10px] text-cream-muted">{{ getCategoryName(prod.categoryId) }}</td>
+                  <td class="p-4 font-bold text-amber-400 text-sm">\${{ prod.price.toFixed(2) }}</td>
+                  <td class="p-4">
+                    <button 
+                      (click)="toggleStock(prod.id)"
+                      [class.bg-emerald-500]="prod.isAvailable"
+                      [class.text-black]="prod.isAvailable"
+                      [class.bg-rose-500]="!prod.isAvailable"
+                      [class.text-white]="!prod.isAvailable"
+                      class="px-3 py-1 rounded-full text-[10px] font-extrabold border border-white/10 cursor-pointer shadow-sm">
+                      {{ prod.isAvailable ? 'In Stock' : 'Out of Stock' }}
+                    </button>
+                  </td>
+                  <td class="p-4 text-right space-x-2">
+                    <button (click)="openEditProductModal(prod)" class="btn-secondary !py-1 !px-3 text-xs">Edit</button>
+                    <button (click)="deleteProduct(prod.id)" class="text-rose-400 hover:text-rose-300 p-1 border-0 bg-transparent cursor-pointer text-base"><i class="ri-delete-bin-line"></i></button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (activeTab === 'inquiries') {
+    <div class="space-y-6">
+      <h3 class="font-serif text-2xl font-bold text-cream">Received Service & Catering Inquiries</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        @for (inq of inquiries; track inq.id) {
+          <div class="glass-panel p-6 rounded-3xl border border-white/10 space-y-4 shadow-xl">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="badge-gold uppercase">{{ inq.serviceType }}</span>
+                <h4 class="font-serif font-bold text-lg text-cream mt-1">{{ inq.name }}</h4>
+                <p class="text-xs text-amber-400 font-semibold">{{ inq.email }} • {{ inq.phone }}</p>
+              </div>
+            </div>
+            <p class="text-xs text-cream-muted bg-black/40 p-4 rounded-2xl italic border border-white/5">"{{ inq.message }}"</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <app-product-crud-modal
+    [isOpen]="isCrudModalOpen"
+    [product]="editingProduct"
+    (close)="isCrudModalOpen = false"
+    (save)="handleSaveProduct($event)">
+  </app-product-crud-modal>
+</div>

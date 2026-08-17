@@ -1,0 +1,78 @@
+<section class="relative overflow-hidden pt-12 pb-24 px-4 lg:px-12">
+  <!-- Glowing Background Orbs -->
+  <div class="absolute top-0 left-1/4 w-96 h-96 bg-amber-500/15 blur-[140px] rounded-full pointer-events-none animate-pulse-glow"></div>
+  <div class="absolute bottom-10 right-10 w-80 h-80 bg-amber-600/10 blur-[120px] rounded-full pointer-events-none"></div>
+
+  <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+    
+    <div class="lg:col-span-7 space-y-7 z-10">
+      <div class="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 px-4 py-2 rounded-full text-amber-300 text-xs font-bold uppercase tracking-wider shadow-lg shadow-amber-500/10">
+        <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+        Artisan Small-Batch Roastery & Bar
+      </div>
+
+      <h1 class="font-serif text-5xl lg:text-7xl font-bold leading-none tracking-tight">
+        Crafted Coffee for <br/>
+        <span class="text-gradient">Elevated Moments</span>
+      </h1>
+
+      <p class="text-base lg:text-lg text-cream-muted max-w-xl font-light leading-relaxed">
+        Savor single-origin beans ethically harvested from high-altitude micro-lots, precision roasted, and poured into espresso perfection by Q-Grader baristas.
+      </p>
+
+      <div class="flex flex-wrap items-center gap-4 pt-2">
+        <a routerLink="/menu" class="btn-primary text-sm !py-3.5 !px-8">
+          <i class="ri-restaurant-2-line text-lg"></i> Explore Menu & Order
+        </a>
+        <button (click)="onExploreFeatured.emit()" class="btn-secondary text-sm !py-3.5 !px-6">
+          <i class="ri-fire-line text-amber-400 text-lg"></i> Barista Specials
+        </button>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="grid grid-cols-3 gap-6 pt-6 border-t border-white/10 max-w-lg">
+        <div>
+          <span class="font-serif text-2xl lg:text-3xl font-extrabold text-amber-400 block">100%</span>
+          <span class="text-[11px] text-cream-muted font-medium uppercase tracking-wider">Direct Trade Beans</span>
+        </div>
+        <div>
+          <span class="font-serif text-2xl lg:text-3xl font-extrabold text-amber-400 block">4.9 ★</span>
+          <span class="text-[11px] text-cream-muted font-medium uppercase tracking-wider">Over 2,500 Reviews</span>
+        </div>
+        <div>
+          <span class="font-serif text-2xl lg:text-3xl font-extrabold text-amber-400 block">&lt; 15m</span>
+          <span class="text-[11px] text-cream-muted font-medium uppercase tracking-wider">Average Pickup Time</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-5 relative z-10">
+      <div class="relative mx-auto max-w-md animate-float">
+        <!-- Decorative Ambient Ring -->
+        <div class="absolute -inset-4 bg-gradient-to-tr from-amber-500/20 to-amber-300/10 rounded-[35px] blur-xl opacity-75"></div>
+
+        <div class="relative rounded-3xl overflow-hidden border border-amber-500/30 shadow-2xl group">
+          <img 
+            src="https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&q=80&w=1000" 
+            alt="Velvet Vanilla Latte" 
+            class="w-full h-[480px] object-cover group-hover:scale-105 transition-transform duration-700"
+          />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+
+          <!-- Highlight Floating Card -->
+          <div class="absolute bottom-6 left-6 right-6 glass-panel p-5 rounded-2xl border border-white/15 flex items-center justify-between shadow-2xl">
+            <div class="space-y-1">
+              <span class="badge-gold">Barista's Choice</span>
+              <h3 class="font-serif text-xl font-bold text-cream">Velvet Vanilla Latte</h3>
+              <p class="text-xs text-amber-300 font-semibold">\${{ (5.80).toFixed(2) }} • Madagascar Vanilla & Oat Milk</p>
+            </div>
+            <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-amber-500 to-amber-300 text-black flex items-center justify-center font-bold shadow-lg text-lg flex-shrink-0">
+              <i class="ri-cup-fill"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>

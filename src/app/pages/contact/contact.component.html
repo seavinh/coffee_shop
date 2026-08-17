@@ -1,0 +1,145 @@
+<div class="max-w-7xl mx-auto px-4 lg:px-12 py-10 space-y-16 pb-24">
+  <div class="text-center max-w-2xl mx-auto space-y-3">
+    <span class="badge-gold">Get in Touch</span>
+    <h1 class="font-serif text-4xl lg:text-5xl font-bold text-gradient">Visit Us or Send a Message</h1>
+    <p class="text-sm text-cream-muted font-light">Have questions about our single-origin roasts, barista catering, or store hours? We would love to hear from you.</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div class="lg:col-span-5 space-y-6">
+      <div class="glass-panel p-8 rounded-3xl border border-white/10 space-y-6">
+        <h3 class="font-serif text-2xl font-bold text-cream">Flagship Roastery Bar</h3>
+        
+        <div class="space-y-4 text-xs text-cream-muted">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-base flex-shrink-0">
+              <i class="ri-map-pin-2-line"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-cream">Address</h4>
+              <p>1042 Espresso Way, SoMa District</p>
+              <p>San Francisco, CA 94103</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-base flex-shrink-0">
+              <i class="ri-phone-line"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-cream">Phone & Reservations</h4>
+              <p>+1 (415) 555-0199</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-base flex-shrink-0">
+              <i class="ri-mail-line"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-cream">Email</h4>
+              <p>hello&#64;auracoffee.com</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3 pt-2 border-t border-white/10">
+            <div class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-base flex-shrink-0">
+              <i class="ri-time-line"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-cream">Operating Hours</h4>
+              <p>Monday – Friday: 6:30 AM – 8:00 PM</p>
+              <p>Saturday – Sunday: 7:00 AM – 9:00 PM</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+          <a href="#" class="btn-icon"><i class="ri-instagram-line"></i></a>
+          <a href="#" class="btn-icon"><i class="ri-facebook-circle-line"></i></a>
+          <a href="#" class="btn-icon"><i class="ri-twitter-x-line"></i></a>
+        </div>
+      </div>
+
+      <div class="glass-panel h-52 rounded-3xl overflow-hidden relative border border-white/10 flex items-center justify-center group">
+        <img 
+          src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=800" 
+          alt="Map Preview" 
+          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-[2px] flex items-center justify-center">
+          <div class="text-center p-4">
+            <div class="w-10 h-10 rounded-full bg-amber-400 text-black flex items-center justify-center text-xl font-bold mx-auto mb-2 shadow-lg">
+              <i class="ri-map-pin-fill"></i>
+            </div>
+            <p class="text-xs text-white font-bold">1042 Espresso Way, San Francisco</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-7 glass-panel p-8 lg:p-10 rounded-3xl border border-white/10 space-y-6">
+      <div>
+        <span class="badge-gold">Send a Direct Message</span>
+        <h3 class="font-serif text-2xl font-bold text-cream mt-1">How can we help your coffee journey?</h3>
+      </div>
+
+      <form (ngSubmit)="sendMessage()" class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">Your Name</label>
+            <input 
+              type="text" 
+              [(ngModel)]="name" 
+              name="name" 
+              required 
+              placeholder="e.g. Jordan Lee"
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-cream focus:outline-none focus:border-amber-400"
+            />
+          </div>
+
+          <div>
+            <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">Email Address</label>
+            <input 
+              type="email" 
+              [(ngModel)]="email" 
+              name="email" 
+              required 
+              placeholder="jordan@example.com"
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-cream focus:outline-none focus:border-amber-400"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">Subject</label>
+          <select 
+            [(ngModel)]="subject" 
+            name="subject"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-cream focus:outline-none focus:border-amber-400">
+            <option value="General Inquiry" class="bg-[#1C130D]">General Inquiry</option>
+            <option value="Feedback" class="bg-[#1C130D]">Customer Feedback</option>
+            <option value="Wholesale" class="bg-[#1C130D]">Wholesale / Corporate Partnership</option>
+            <option value="Events" class="bg-[#1C130D]">Private Event Booking</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">Message</label>
+          <textarea 
+            rows="5" 
+            [(ngModel)]="message" 
+            name="message" 
+            required 
+            placeholder="Write your message here..."
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-cream focus:outline-none focus:border-amber-400">
+          </textarea>
+        </div>
+
+        <button type="submit" class="btn-primary w-full text-sm">
+          <i class="ri-send-plane-line"></i> Send Message
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,90 @@
+<nav class="sticky top-0 z-40 glass-panel border-b border-amber-500/15 px-4 lg:px-12 py-3.5 transition-all duration-300">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    
+    <!-- Brand Logo -->
+    <a routerLink="/" class="flex items-center gap-3 text-decoration-none group">
+      <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-amber-600 via-amber-500 to-amber-300 flex items-center justify-center text-black font-extrabold text-2xl shadow-lg shadow-amber-500/25 group-hover:scale-105 transition-transform duration-300">
+        <i class="ri-cup-fill"></i>
+      </div>
+      <div>
+        <span class="font-serif text-2xl font-black tracking-wider text-gradient block leading-none">AURA</span>
+        <span class="text-[9px] text-amber-400 tracking-[0.25em] uppercase font-bold">Artisan Coffee</span>
+      </div>
+    </a>
+
+    <!-- Desktop Navigation Links -->
+    <div class="hidden lg:flex items-center gap-7 font-semibold text-xs text-cream-muted uppercase tracking-wider">
+      <a routerLink="/" routerLinkActive="text-amber-400 font-bold" [routerLinkActiveOptions]="{exact: true}" class="hover:text-cream transition-colors text-decoration-none flex items-center gap-1.5 py-1">
+        <i class="ri-home-5-line text-sm"></i> Home
+      </a>
+      <a routerLink="/menu" routerLinkActive="text-amber-400 font-bold" class="hover:text-cream transition-colors text-decoration-none flex items-center gap-1.5 py-1">
+        <i class="ri-restaurant-2-line text-sm"></i> Menu
+      </a>
+      <a routerLink="/about" routerLinkActive="text-amber-400 font-bold" class="hover:text-cream transition-colors text-decoration-none flex items-center gap-1.5 py-1">
+        <i class="ri-information-line text-sm"></i> About Us
+      </a>
+      <a routerLink="/services" routerLinkActive="text-amber-400 font-bold" class="hover:text-cream transition-colors text-decoration-none flex items-center gap-1.5 py-1">
+        <i class="ri-customer-service-2-line text-sm"></i> Services
+      </a>
+      <a routerLink="/contact" routerLinkActive="text-amber-400 font-bold" class="hover:text-cream transition-colors text-decoration-none flex items-center gap-1.5 py-1">
+        <i class="ri-mail-line text-sm"></i> Contact
+      </a>
+      <a routerLink="/orders" routerLinkActive="text-amber-400 font-bold" class="hover:text-cream transition-colors text-decoration-none flex items-center gap-1.5 py-1">
+        <i class="ri-time-line text-sm"></i> Track Orders
+      </a>
+      <a routerLink="/admin" routerLinkActive="text-amber-400 font-bold" class="hover:text-cream transition-colors text-decoration-none flex items-center gap-1.5 bg-amber-500/10 text-amber-400 px-3.5 py-1.5 rounded-full border border-amber-500/30">
+        <i class="ri-dashboard-3-line text-sm"></i> Admin Dashboard
+      </a>
+    </div>
+
+    <!-- Right Side Actions: Auth & Cart Button -->
+    <div class="flex items-center gap-4">
+      @if (user$ | async; as user) {
+        <div class="hidden sm:flex items-center gap-2 bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-full text-xs text-cream shadow-sm">
+          <i class="ri-user-smile-line text-amber-400 text-sm"></i>
+          <span class="font-semibold max-w-[110px] truncate">{{ user.email }}</span>
+          <button (click)="onSignOut()" class="text-xs text-cream-muted hover:text-red-400 ml-1 border-0 bg-transparent cursor-pointer" title="Sign Out">
+            <i class="ri-logout-box-r-line"></i>
+          </button>
+        </div>
+      } @else {
+        <button (click)="openAuth.emit()" class="btn-secondary text-xs !py-2 !px-4">
+          <i class="ri-user-line"></i> Sign In
+        </button>
+      }
+
+      <button (click)="toggleCart()" class="btn-primary relative text-xs !py-2.5 !px-5 group shadow-lg shadow-amber-500/20">
+        <i class="ri-shopping-bag-3-line text-base"></i>
+        <span class="hidden sm:inline font-bold">Order Cart</span>
+        @if (cartItemCount > 0) {
+          <span class="absolute -top-2 -right-2 bg-amber-400 text-black font-black text-[11px] w-6 h-6 rounded-full flex items-center justify-center border-2 border-black animate-bounce shadow-md">
+            {{ cartItemCount }}
+          </span>
+        }
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Mobile Navigation Bar -->
+  <div class="lg:hidden flex items-center justify-around border-t border-white/10 pt-2.5 mt-2.5 text-[11px] text-cream-muted font-medium overflow-x-auto">
+    <a routerLink="/" routerLinkActive="text-amber-400 font-bold" [routerLinkActiveOptions]="{exact: true}" class="flex flex-col items-center gap-0.5 text-decoration-none">
+      <i class="ri-home-5-line text-base"></i> Home
+    </a>
+    <a routerLink="/menu" routerLinkActive="text-amber-400 font-bold" class="flex flex-col items-center gap-0.5 text-decoration-none">
+      <i class="ri-restaurant-2-line text-base"></i> Menu
+    </a>
+    <a routerLink="/about" routerLinkActive="text-amber-400 font-bold" class="flex flex-col items-center gap-0.5 text-decoration-none">
+      <i class="ri-information-line text-base"></i> About
+    </a>
+    <a routerLink="/services" routerLinkActive="text-amber-400 font-bold" class="flex flex-col items-center gap-0.5 text-decoration-none">
+      <i class="ri-customer-service-2-line text-base"></i> Services
+    </a>
+    <a routerLink="/contact" routerLinkActive="text-amber-400 font-bold" class="flex flex-col items-center gap-0.5 text-decoration-none">
+      <i class="ri-mail-line text-base"></i> Contact
+    </a>
+    <a routerLink="/admin" routerLinkActive="text-amber-400 font-bold" class="flex flex-col items-center gap-0.5 text-decoration-none text-amber-400">
+      <i class="ri-dashboard-3-line text-base"></i> Admin
+    </a>
+  </div>
+</nav>
