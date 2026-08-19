@@ -1,41 +1,59 @@
-<div class="max-w-7xl mx-auto px-4 lg:px-12 py-10 space-y-10 pb-24">
+<div class="max-w-7xl mx-auto px-4 lg:px-12 py-10 space-y-8 pb-24">
   <div class="text-center space-y-3 max-w-2xl mx-auto">
     <span class="badge-gold"><i class="ri-cup-fill"></i> Artisanal Selection</span>
     <h1 class="font-serif text-4xl lg:text-5xl font-bold text-gradient">Coffee Bar & Bakery Menu</h1>
     <p class="text-sm text-cream-muted font-light">Explore single-origins, handcrafted espresso drinks, cold infusions, and freshly baked French pastries.</p>
   </div>
 
-  <div class="glass-panel p-4 rounded-2xl border border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
-    <div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-none">
-      <button 
-        (click)="selectedCategory = 'all'"
-        [class.bg-amber-500]="selectedCategory === 'all'"
-        [class.text-black]="selectedCategory === 'all'"
-        [class.text-cream]="selectedCategory !== 'all'"
-        class="px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border border-white/10 cursor-pointer shadow-sm">
-        <i class="ri-apps-2-line"></i> All Items
-      </button>
-      
-      @for (cat of categories; track cat.id) {
+  <div class="space-y-4">
+    <!-- Category Tabs & Search Bar -->
+    <div class="glass-panel p-4 rounded-2xl border border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
+      <div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-none">
         <button 
-          (click)="selectedCategory = cat.id"
-          [class.bg-amber-500]="selectedCategory === cat.id"
-          [class.text-black]="selectedCategory === cat.id"
-          [class.text-cream]="selectedCategory !== cat.id"
-          class="px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border border-white/10 cursor-pointer flex items-center gap-2 shadow-sm">
-          <i [class]="cat.icon"></i> {{ cat.name }}
+          (click)="selectedCategory = 'all'"
+          [class.bg-amber-500]="selectedCategory === 'all'"
+          [class.text-black]="selectedCategory === 'all'"
+          [class.text-cream]="selectedCategory !== 'all'"
+          class="px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border border-white/10 cursor-pointer shadow-sm">
+          <i class="ri-apps-2-line"></i> All Items
         </button>
-      }
+        
+        @for (cat of categories; track cat.id) {
+          <button 
+            (click)="selectedCategory = cat.id"
+            [class.bg-amber-500]="selectedCategory === cat.id"
+            [class.text-black]="selectedCategory === cat.id"
+            [class.text-cream]="selectedCategory !== cat.id"
+            class="px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border border-white/10 cursor-pointer flex items-center gap-2 shadow-sm">
+            <i [class]="cat.icon"></i> {{ cat.name }}
+          </button>
+        }
+      </div>
+
+      <div class="relative w-full md:w-72">
+        <i class="ri-search-line absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-400 text-sm"></i>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery" 
+          placeholder="Search espresso, mocha, oat milk..."
+          class="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs text-cream focus:outline-none focus:border-amber-400"
+        />
+      </div>
     </div>
 
-    <div class="relative w-full md:w-72">
-      <i class="ri-search-line absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-400 text-sm"></i>
-      <input 
-        type="text" 
-        [(ngModel)]="searchQuery" 
-        placeholder="Search espresso, mocha, oat milk..."
-        class="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs text-cream focus:outline-none focus:border-amber-400"
-      />
+    <!-- Dynamic Tag Quick Filters -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+      <span class="text-[10px] text-amber-400 font-bold uppercase tracking-wider mr-1 flex items-center gap-1">
+        <i class="ri-price-tag-3-line"></i> Tags:
+      </span>
+      @for (tag of availableTags; track tag) {
+        <button 
+          (click)="selectedTag = tag === 'All' ? 'all' : tag"
+          [ngClass]="isTagSelected(tag) ? 'bg-amber-500/20 text-amber-400 border-amber-500/40' : 'text-cream-muted border-white/10 bg-white/5'"
+          class="px-3 py-1 rounded-full border text-[11px] font-semibold transition-all cursor-pointer whitespace-nowrap">
+          {{ tag }}
+        </button>
+      }
     </div>
   </div>
 
@@ -54,9 +72,9 @@
         <i class="ri-search-eye-line"></i>
       </div>
       <h3 class="font-serif text-xl font-bold text-cream">No menu items match your search</h3>
-      <p class="text-xs text-cream-muted">Try resetting your category filter or search keywords.</p>
-      <button (click)="selectedCategory = 'all'; searchQuery = ''" class="btn-secondary text-xs">
-        Reset Filters
+      <p class="text-xs text-cream-muted">Try resetting your category filter, tag, or search keywords.</p>
+      <button (click)="selectedCategory = 'all'; selectedTag = 'all'; searchQuery = ''" class="btn-secondary text-xs">
+        Reset All Filters
       </button>
     </div>
   }

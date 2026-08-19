@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { CartService } from '../../services/cart.service';
 import { SupabaseService } from '../../services/supabase.service';
 import { ToastService } from '../../services/toast.service';
+import { CurrencyService } from '../../services/currency.service';
 import { OrderType } from '../../models/order.model';
 
 @Component({
@@ -30,6 +31,7 @@ export class CartDrawerComponent {
     private cartService: CartService,
     private supabaseService: SupabaseService,
     private toastService: ToastService,
+    public currencyService: CurrencyService,
     private router: Router
   ) {
     this.cartService.items$.subscribe(items => {
@@ -42,7 +44,7 @@ export class CartDrawerComponent {
 
     this.supabaseService.currentUser$.subscribe(u => {
       if (u) {
-        this.customerName = u.user_metadata?.['full_name'] || u.email?.split('@')[0] || '';
+        this.customerName = u.fullName || u.email?.split('@')[0] || '';
       }
     });
   }

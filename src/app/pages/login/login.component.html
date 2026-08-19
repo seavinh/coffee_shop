@@ -1,0 +1,154 @@
+<div class="max-w-4xl mx-auto px-4 lg:px-8 py-12 space-y-8 pb-24">
+  
+  <div class="text-center space-y-3 max-w-xl mx-auto">
+    <span class="badge-gold"><i class="ri-shield-keyhole-line"></i> Portal Access</span>
+    <h1 class="font-serif text-4xl lg:text-5xl font-bold text-gradient">AURA Coffee Portal</h1>
+    <p class="text-xs lg:text-sm text-cream-muted font-light">
+      Sign in to manage your coffee orders, track brewing progress, or access the Admin Operations Center.
+    </p>
+  </div>
+
+  @if (currentUser$ | async; as user) {
+    <!-- Signed In State Card -->
+    <div class="glass-panel p-8 rounded-3xl border border-amber-500/30 shadow-2xl max-w-lg mx-auto text-center space-y-6">
+      <div class="w-16 h-16 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-3xl mx-auto shadow-lg">
+        <i class="ri-user-smile-fill"></i>
+      </div>
+
+      <div class="space-y-2">
+        <span [class]="user.role === 'admin' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'" class="px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider">
+          Active Role: {{ user.role }}
+        </span>
+        <h2 class="font-serif text-2xl font-bold text-cream mt-2">{{ user.fullName || user.email }}</h2>
+        <p class="text-xs text-cream-muted">{{ user.email }}</p>
+      </div>
+
+      <div class="pt-4 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        @if (user.role === 'admin') {
+          <a routerLink="/admin" class="btn-primary text-xs w-full justify-center">
+            <i class="ri-dashboard-3-line"></i> Open Admin Operations
+          </a>
+        } @else {
+          <a routerLink="/menu" class="btn-primary text-xs w-full justify-center">
+            <i class="ri-restaurant-2-line"></i> Explore Menu & Order
+          </a>
+        }
+
+        <button (click)="onSignOut()" class="btn-secondary !py-2 text-xs border-rose-500/30 text-rose-300 hover:bg-rose-500/20 w-full justify-center">
+          <i class="ri-logout-box-r-line"></i> Sign Out of Account
+        </button>
+      </div>
+    </div>
+  } @else {
+    <!-- Signed Out Form -->
+    <div class="glass-panel p-8 lg:p-10 rounded-3xl border border-amber-500/30 shadow-2xl max-w-xl mx-auto space-y-6">
+      
+      <!-- Portal Type Selector Tabs -->
+      <div class="grid grid-cols-2 bg-white/5 border border-white/10 p-1.5 rounded-2xl text-xs font-bold text-center">
+        <button 
+          (click)="activeRoleTab = 'customer'; errorMsg = ''" 
+          [class.bg-amber-500]="activeRoleTab === 'customer'"
+          [class.text-black]="activeRoleTab === 'customer'"
+          [class.text-cream]="activeRoleTab !== 'customer'"
+          class="py-3 rounded-xl transition-all border-0 cursor-pointer flex items-center justify-center gap-2 shadow-sm">
+          <i class="ri-user-smile-line text-base"></i> Customer Portal
+        </button>
+
+        <button 
+          (click)="activeRoleTab = 'admin'; errorMsg = ''" 
+          [class.bg-amber-500]="activeRoleTab === 'admin'"
+          [class.text-black]="activeRoleTab === 'admin'"
+          [class.text-cream]="activeRoleTab !== 'admin'"
+          class="py-3 rounded-xl transition-all border-0 cursor-pointer flex items-center justify-center gap-2 shadow-sm">
+          <i class="ri-shield-user-line text-base"></i> Admin Portal
+        </button>
+      </div>
+
+      <!-- Mode Selector: Sign In vs Register -->
+      <div class="flex items-center justify-between border-b border-white/10 pb-4">
+        <div class="flex gap-4 text-sm font-bold">
+          <button 
+            (click)="authMode = 'login'; errorMsg = ''"
+            [class.text-amber-400]="authMode === 'login'"
+            [class.border-b-2]="authMode === 'login'"
+            [class.border-amber-400]="authMode === 'login'"
+            [class.text-cream-muted]="authMode !== 'login'"
+            class="pb-2 bg-transparent border-0 cursor-pointer">
+            Sign In
+          </button>
+          <button 
+            (click)="authMode = 'register'; errorMsg = ''"
+            [class.text-amber-400]="authMode === 'register'"
+            [class.border-b-2]="authMode === 'register'"
+            [class.border-amber-400]="authMode === 'register'"
+            [class.text-cream-muted]="authMode !== 'register'"
+            class="pb-2 bg-transparent border-0 cursor-pointer">
+            Create Account
+          </button>
+        </div>
+
+        <span [class]="activeRoleTab === 'admin' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'" class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider">
+          {{ activeRoleTab }} Mode
+        </span>
+      </div>
+
+      <!-- Auth Form -->
+      <form (ngSubmit)="onSubmit()" class="space-y-4">
+        
+        @if (authMode === 'register') {
+          <div>
+            <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">Full Name</label>
+            <input 
+              type="text" 
+              [(ngModel)]="fullName" 
+              name="fullName" 
+              required 
+              placeholder="e.g. Alex Mercer"
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-cream focus:outline-none focus:border-amber-400"
+            />
+          </div>
+        }
+
+        <div>
+          <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">
+            {{ activeRoleTab === 'admin' ? 'Admin Email Address' : 'Customer Email Address' }}
+          </label>
+          <input 
+            type="email" 
+            [(ngModel)]="email" 
+            name="email" 
+            required 
+            placeholder="{{ activeRoleTab === 'admin' ? 'admin@auracoffee.com' : 'customer@gmail.com' }}"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-cream focus:outline-none focus:border-amber-400"
+          />
+        </div>
+
+        <div>
+          <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">Password</label>
+          <input 
+            type="password" 
+            [(ngModel)]="password" 
+            name="password" 
+            required 
+            placeholder="••••••••"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-cream focus:outline-none focus:border-amber-400"
+          />
+        </div>
+
+        @if (errorMsg) {
+          <div class="p-3 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+            <i class="ri-error-warning-line"></i> {{ errorMsg }}
+          </div>
+        }
+
+        <button type="submit" [disabled]="loading" class="btn-primary w-full text-sm !py-3">
+          <i [class]="loading ? 'ri-loader-4-line animate-spin' : (authMode === 'login' ? 'ri-login-box-line' : 'ri-user-add-line')"></i>
+          {{ authMode === 'login' ? 'Sign In to ' + (activeRoleTab | uppercase) + ' Portal' : 'Register New ' + (activeRoleTab | uppercase) }}
+        </button>
+
+      </form>
+
+    </div>
+  }
+
+</div>

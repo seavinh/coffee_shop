@@ -6,6 +6,8 @@ import { ServicesComponent } from './pages/services/services.component';
 import { ContactComponent } from './pages/contact/contact.component';
 import { OrdersComponent } from './pages/orders/orders.component';
 import { AdminComponent } from './pages/admin/admin.component';
+import { LoginComponent } from './pages/login/login.component';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, title: 'AURA | Artisan Coffee & Roastery' },
@@ -14,6 +16,7 @@ export const routes: Routes = [
   { path: 'services', component: ServicesComponent, title: 'AURA | Catering & Roastery Services' },
   { path: 'contact', component: ContactComponent, title: 'AURA | Contact Us & Location' },
   { path: 'orders', component: OrdersComponent, title: 'AURA | Track Your Order' },
-  { path: 'admin', component: AdminComponent, title: 'AURA | Admin Operations Center' },
+  { path: 'login', component: LoginComponent, title: 'AURA | Sign In & Portal Access' },
+  { path: 'admin', component: AdminComponent, canActivate: [adminGuard], title: 'AURA | Admin Operations Center' },
   { path: '**', redirectTo: '' }
 ];

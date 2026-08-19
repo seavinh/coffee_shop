@@ -1,10 +1,19 @@
 import { Injectable } from '@angular/core';
-import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { SUPABASE_CONFIG } from '../config/supabase.config';
 import { Product, Category } from '../models/product.model';
 import { Order, OrderStatus } from '../models/order.model';
 import { ToastService } from './toast.service';
+
+export type UserRole = 'admin' | 'customer';
+
+export interface AppUser {
+  id: string;
+  email: string;
+  fullName: string;
+  role: UserRole;
+}
 
 export interface ServiceInquiry {
   id: string;
@@ -127,77 +136,10 @@ const INITIAL_PRODUCTS: Product[] = [
       temperatures: ['Warm Up', 'As Is'],
       extraShotPrice: 0
     }
-  },
-  {
-    id: 'prod-6',
-    categoryId: 'cat-4',
-    name: 'Dark Chocolate Almond Danish',
-    description: 'Decadent Belgian dark chocolate folded into crisp puff pastry with toasted sliced almonds.',
-    price: 5.20,
-    imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=800',
-    rating: 4.75,
-    reviewCount: 64,
-    tags: ['Sweet Treat'],
-    isAvailable: true,
-    isFeatured: false,
-    customization: {
-      sizes: [{ label: 'Standard', priceExtra: 0 }],
-      milkChoices: [],
-      sweetnessLevels: [],
-      temperatures: ['Warm Up', 'As Is'],
-      extraShotPrice: 0
-    }
-  },
-  {
-    id: 'prod-7',
-    categoryId: 'cat-5',
-    name: 'Ethiopia Yirgacheffe Single Origin (250g)',
-    description: 'Washed Arabica coffee bean featuring notes of jasmine floral aroma, bergamot citrus, and bright lemon clarity.',
-    price: 18.50,
-    imageUrl: 'https://images.unsplash.com/photo-1587734195503-904fca47e0e9?auto=format&fit=crop&q=80&w=800',
-    rating: 4.98,
-    reviewCount: 52,
-    roastLevel: 'Light',
-    tags: ['Whole Bean', 'Floral & Citrus'],
-    isAvailable: true,
-    isFeatured: true
   }
 ];
 
-const INITIAL_MOCK_ORDERS: Order[] = [
-  {
-    id: 'ORD-9821',
-    customerName: 'Sophie Bennett',
-    customerPhone: '+1 415-555-0192',
-    orderType: 'pickup',
-    items: [
-      {
-        id: 'item-1',
-        product: INITIAL_PRODUCTS[0],
-        quantity: 2,
-        customization: {
-          size: 'Medium (12oz)',
-          sizePriceExtra: 0.60,
-          milk: 'Oat Milk',
-          milkPriceExtra: 0.70,
-          sweetness: 'Balanced (50%)',
-          temperature: 'Hot',
-          extraShots: 1,
-          extraShotsPriceExtra: 1.00,
-          specialNotes: 'Extra hot please!'
-        },
-        unitPrice: 8.10,
-        totalPrice: 16.20
-      }
-    ],
-    subtotal: 16.20,
-    tax: 1.30,
-    discount: 0,
-    totalAmount: 17.50,
-    status: 'preparing',
-    createdAt: new Date(Date.now() - 15 * 60 * 1000).toISOString()
-  }
-];
+const INITIAL_MOCK_ORDERS: Order[] = [];
 
 const INITIAL_INQUIRIES: ServiceInquiry[] = [
   {
@@ -218,13 +160,16 @@ export class SupabaseService {
   private supabase: SupabaseClient | null = null;
   public isLiveSupabase = false;
 
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
+  private currentUserSubject = new BehaviorSubject<AppUser | null>(this.loadStoredUser());
   public currentUser$ = this.currentUserSubject.asObservable();
+
+  private categoriesSubject = new BehaviorSubject<Category[]>(this.loadStoredCategories());
+  public categories$ = this.categoriesSubject.asObservable();
 
   private productsSubject = new BehaviorSubject<Product[]>(INITIAL_PRODUCTS);
   public products$ = this.productsSubject.asObservable();
 
-  private ordersSubject = new BehaviorSubject<Order[]>(INITIAL_MOCK_ORDERS);
+  private ordersSubject = new BehaviorSubject<Order[]>(this.loadStoredOrders());
   public orders$ = this.ordersSubject.asObservable();
 
   private inquiriesSubject = new BehaviorSubject<ServiceInquiry[]>(INITIAL_INQUIRIES);
@@ -234,7 +179,90 @@ export class SupabaseService {
     this.initSupabase();
   }
 
-  private initSupabase() {
+  private loadStoredOrders(): Order[] {
+    try {
+      const saved = localStorage.getItem('aura_orders');
+      if (saved) {
+        const parsed: Order[] = JSON.parse(saved);
+        return parsed.filter(o => o.id !== 'ORD-9821');
+      }
+    } catch (err) {}
+    return INITIAL_MOCK_ORDERS;
+  }
+
+  private saveOrders(orders: Order[]) {
+    this.ordersSubject.next(orders);
+    try {
+      localStorage.setItem('aura_orders', JSON.stringify(orders));
+    } catch (err) {}
+  }
+
+  saveLocalPlacedOrderId(orderId: string) {
+    try {
+      const saved = this.getLocalPlacedOrderIds();
+      if (!saved.includes(orderId)) {
+        saved.unshift(orderId);
+        localStorage.setItem('aura_my_order_ids', JSON.stringify(saved));
+      }
+    } catch (err) {}
+  }
+
+  getLocalPlacedOrderIds(): string[] {
+    try {
+      const saved = localStorage.getItem('aura_my_order_ids');
+      if (saved) return JSON.parse(saved);
+    } catch (err) {}
+    return [];
+  }
+
+  private loadStoredCategories(): Category[] {
+    try {
+      const saved = localStorage.getItem('aura_categories');
+      if (saved) return JSON.parse(saved);
+    } catch (err) {}
+    return MOCK_CATEGORIES;
+  }
+
+  private saveCategories(categories: Category[]) {
+    this.categoriesSubject.next(categories);
+    try {
+      localStorage.setItem('aura_categories', JSON.stringify(categories));
+    } catch (err) {}
+  }
+
+  private loadStoredUser(): AppUser | null {
+    try {
+      const saved = localStorage.getItem('aura_user');
+      if (saved) return JSON.parse(saved);
+    } catch (err) {}
+    return null;
+  }
+
+  private setUser(user: AppUser | null) {
+    this.currentUserSubject.next(user);
+    if (user) {
+      localStorage.setItem('aura_user', JSON.stringify(user));
+      // Save to user roles map
+      const rolesMap = this.getRolesMap();
+      rolesMap[user.email.toLowerCase()] = user.role;
+      localStorage.setItem('aura_user_roles', JSON.stringify(rolesMap));
+    } else {
+      localStorage.removeItem('aura_user');
+    }
+  }
+
+  private getRolesMap(): Record<string, UserRole> {
+    try {
+      const saved = localStorage.getItem('aura_user_roles');
+      if (saved) return JSON.parse(saved);
+    } catch (err) {}
+    return {
+      'admin@auracoffee.com': 'admin',
+      'customer@auracoffee.com': 'customer'
+    };
+  }
+
+  private async initSupabase() {
     if (
       SUPABASE_CONFIG.url &&
       SUPABASE_CONFIG.url !== 'https://your-supabase-project.supabase.co' &&
@@ -244,70 +272,374 @@ export class SupabaseService {
       try {
         this.supabase = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
         this.isLiveSupabase = true;
-        console.log('[AURA] Connected to live Supabase.');
 
-        this.supabase.auth.onAuthStateChange((_event, session) => {
-          this.currentUserSubject.next(session?.user || null);
+        // Check active session on startup
+        const { data: sessionData } = await this.supabase.auth.getSession();
+        if (sessionData?.session?.user) {
+          const u = sessionData.session.user;
+          const email = u.email || '';
+          let role: UserRole = (email.toLowerCase().includes('admin') ? 'admin' : 'customer');
+          let fullName = u.user_metadata?.['full_name'] || email.split('@')[0] || '';
+
+          try {
+            const { data: profile } = await this.supabase.from('profiles').select('*').eq('id', u.id).single();
+            if (profile?.role) role = profile.role as UserRole;
+            if (profile?.full_name) fullName = profile.full_name;
+          } catch (e) {}
+
+          this.setUser({ id: u.id, email, fullName, role });
+        }
+
+        // Listen to Auth State Changes
+        this.supabase.auth.onAuthStateChange(async (_event, session) => {
+          if (session?.user) {
+            const email = session.user.email || '';
+            let role: UserRole = session.user.user_metadata?.['role'] || (email.toLowerCase().includes('admin') ? 'admin' : 'customer');
+            let fullName = session.user.user_metadata?.['full_name'] || email.split('@')[0] || '';
+
+            if (this.supabase) {
+              try {
+                const { data: profile } = await this.supabase.from('profiles').select('role, full_name').eq('id', session.user.id).single();
+                if (profile?.role) role = profile.role as UserRole;
+                if (profile?.full_name) fullName = profile.full_name;
+              } catch (e) {}
+            }
+
+            this.setUser({
+              id: session.user.id,
+              email,
+              fullName,
+              role
+            });
+          }
         });
+
+        // Sync live data and attach real-time listeners
+        await this.syncDataFromSupabase();
+        this.setupRealtimeListeners();
       } catch (err) {
-        console.warn('[AURA] Supabase client init failed, running mock mode.', err);
-        this.isLiveSupabase = false;
+        console.warn('[AURA] Supabase client init note:', err);
       }
-    } else {
-      console.log('[AURA] Running in offline mock mode.');
     }
   }
 
-  // Authentication Methods
-  async signUp(email: string, password: string, fullName: string) {
+  private async syncDataFromSupabase() {
+    if (!this.supabase) return;
+
+    try {
+      // 1. Fetch Categories from Supabase
+      const { data: dbCategories, error: catErr } = await this.supabase.from('categories').select('*').order('name');
+      if (dbCategories && dbCategories.length > 0) {
+        this.categoriesSubject.next(dbCategories);
+        localStorage.setItem('aura_categories', JSON.stringify(dbCategories));
+      }
+
+      // 2. Fetch Products from Supabase
+      const { data: dbProducts, error: prodErr } = await this.supabase.from('products').select('*');
+      if (dbProducts && dbProducts.length > 0) {
+        const mappedProducts: Product[] = dbProducts.map(p => ({
+          id: p.id,
+          categoryId: p.category_id || p.categoryId || 'cat-1',
+          name: p.name,
+          description: p.description || '',
+          price: Number(p.price) || 5.0,
+          imageUrl: p.image_url || p.imageUrl || '',
+          rating: Number(p.rating) || 4.9,
+          reviewCount: Number(p.review_count) || 50,
+          roastLevel: p.roast_level || p.roastLevel || 'Medium',
+          tags: Array.isArray(p.tags) ? p.tags : (typeof p.tags === 'string' ? JSON.parse(p.tags || '[]') : ['Bestseller']),
+          isAvailable: p.is_available !== false,
+          isFeatured: !!p.is_featured,
+          customization: p.customization ? (typeof p.customization === 'string' ? JSON.parse(p.customization) : p.customization) : {
+            sizes: [{ label: 'Small (8oz)', priceExtra: 0 }, { label: 'Medium (12oz)', priceExtra: 0.60 }, { label: 'Large (16oz)', priceExtra: 1.20 }],
+            milkChoices: [{ label: 'Whole Milk', priceExtra: 0 }, { label: 'Oat Milk', priceExtra: 0.70 }],
+            sweetnessLevels: ['Unsweetened (0%)', 'Balanced (50%)', 'Sweet (100%)'],
+            temperatures: ['Hot', 'Iced'],
+            extraShotPrice: 1.00
+          }
+        }));
+        this.productsSubject.next(mappedProducts);
+      }
+
+      // 3. Fetch Orders from Supabase
+      const { data: dbOrders, error: orderErr } = await this.supabase.from('orders').select('*').order('created_at', { ascending: false });
+      if (dbOrders) {
+        const mappedOrders: Order[] = dbOrders.map(o => ({
+          id: o.id,
+          userId: o.user_id || o.userId,
+          customerEmail: o.customer_email || o.customerEmail,
+          customerName: o.customer_name || o.customerName || 'Valued Guest',
+          customerPhone: o.customer_phone || o.customerPhone || '',
+          orderType: o.order_type || o.orderType || 'pickup',
+          deliveryAddress: o.delivery_address || o.deliveryAddress,
+          items: Array.isArray(o.items) ? o.items : (typeof o.items === 'string' ? JSON.parse(o.items) : []),
+          subtotal: Number(o.subtotal) || 0,
+          tax: Number(o.tax) || 0,
+          discount: Number(o.discount) || 0,
+          totalAmount: Number(o.total_amount || o.totalAmount) || 0,
+          status: o.status || 'pending',
+          createdAt: o.created_at || o.createdAt || new Date().toISOString()
+        }));
+        this.ordersSubject.next(mappedOrders);
+        localStorage.setItem('aura_orders', JSON.stringify(mappedOrders));
+      }
+    } catch (err) {
+      console.warn('[AURA] Supabase sync note:', err);
+    }
+  }
+
+  private setupRealtimeListeners() {
+    if (!this.supabase) return;
+
+    try {
+      this.supabase
+        .channel('public:orders_realtime')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, payload => {
+          if (payload.eventType === 'INSERT') {
+            const o = payload.new as any;
+            const newOrder: Order = {
+              id: o.id,
+              userId: o.user_id || o.userId,
+              customerEmail: o.customer_email || o.customerEmail,
+              customerName: o.customer_name || o.customerName || 'Valued Guest',
+              customerPhone: o.customer_phone || o.customerPhone || '',
+              orderType: o.order_type || o.orderType || 'pickup',
+              deliveryAddress: o.delivery_address || o.deliveryAddress,
+              items: Array.isArray(o.items) ? o.items : (typeof o.items === 'string' ? JSON.parse(o.items) : []),
+              subtotal: Number(o.subtotal) || 0,
+              tax: Number(o.tax) || 0,
+              discount: Number(o.discount) || 0,
+              totalAmount: Number(o.total_amount || o.totalAmount) || 0,
+              status: o.status || 'pending',
+              createdAt: o.created_at || o.createdAt || new Date().toISOString()
+            };
+            const current = this.ordersSubject.value;
+            if (!current.some(e => e.id === newOrder.id)) {
+              this.ordersSubject.next([newOrder, ...current]);
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            const o = payload.new as any;
+            const updated = this.ordersSubject.value.map(existing => {
+              if (existing.id === o.id) {
+                return {
+                  ...existing,
+                  status: o.status || existing.status,
+                  customerName: o.customer_name || existing.customerName,
+                  customerPhone: o.customer_phone || existing.customerPhone,
+                  totalAmount: Number(o.total_amount) || existing.totalAmount
+                };
+              }
+              return existing;
+            });
+            this.ordersSubject.next(updated);
+          } else if (payload.eventType === 'DELETE') {
+            const o = payload.old as any;
+            this.ordersSubject.next(this.ordersSubject.value.filter(e => e.id !== o.id));
+          }
+        })
+        .subscribe();
+    } catch (err) {
+      console.warn('[AURA] Realtime subscription note:', err);
+    }
+  }
+
+  // Getters for Auth Guard & Roles
+  getCurrentUser(): AppUser | null {
+    return this.currentUserSubject.value;
+  }
+
+  getUserRole(): UserRole {
+    return this.currentUserSubject.value?.role || 'customer';
+  }
+
+  isAdmin(): boolean {
+    return this.currentUserSubject.value?.role === 'admin';
+  }
+
+  // Resilient Authentication Methods with Supabase Auth & Database Sync
+  async signUp(email: string, password: string, fullName: string, role: UserRole = 'customer') {
     if (this.supabase) {
       const { data, error } = await this.supabase.auth.signUp({
         email,
         password,
-        options: { data: { full_name: fullName } }
+        options: {
+          data: {
+            full_name: fullName,
+            role: role
+          }
+        }
       });
-      if (error) throw error;
-      return data;
-    } else {
-      const mockUser: any = { id: 'usr-' + Date.now(), email, user_metadata: { full_name: fullName } };
-      this.currentUserSubject.next(mockUser);
-      return { user: mockUser };
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data?.user) {
+        const userObject: AppUser = {
+          id: data.user.id,
+          email: data.user.email || email,
+          fullName: fullName || email.split('@')[0],
+          role
+        };
+
+        try {
+          await this.supabase.from('profiles').upsert({
+            id: data.user.id,
+            email: email,
+            full_name: userObject.fullName,
+            role: role
+          });
+        } catch (e) {}
+
+        this.setUser(userObject);
+        return { user: userObject };
+      }
     }
+
+    const localUser: AppUser = {
+      id: 'usr-' + Date.now(),
+      email,
+      fullName: fullName || email.split('@')[0],
+      role
+    };
+    this.setUser(localUser);
+    return { user: localUser };
   }
 
   async signIn(email: string, password: string) {
     if (this.supabase) {
-      const { data, error } = await this.supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      return data;
-    } else {
-      const mockUser: any = { id: 'usr-admin-1', email, user_metadata: { full_name: email.split('@')[0] } };
-      this.currentUserSubject.next(mockUser);
-      return { user: mockUser };
+      const { data, error } = await this.supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data?.user) {
+        let role: UserRole = (data.user.user_metadata?.['role'] as UserRole) || (email.toLowerCase().includes('admin') ? 'admin' : 'customer');
+        let fullName = data.user.user_metadata?.['full_name'] || email.split('@')[0];
+
+        try {
+          const { data: profile } = await this.supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', data.user.id)
+            .single();
+
+          if (profile) {
+            if (profile['role']) role = profile['role'] as UserRole;
+            if (profile['full_name']) fullName = profile['full_name'];
+          } else {
+            await this.supabase.from('profiles').upsert({
+              id: data.user.id,
+              email: email,
+              full_name: fullName,
+              role: role
+            });
+          }
+        } catch (e) {}
+
+        const userObject: AppUser = {
+          id: data.user.id,
+          email: data.user.email || email,
+          fullName,
+          role
+        };
+
+        this.setUser(userObject);
+        return { user: userObject };
+      }
     }
+
+    const rolesMap = this.getRolesMap();
+    const userRole: UserRole = rolesMap[email.toLowerCase()] || (email.toLowerCase().includes('admin') ? 'admin' : 'customer');
+    const localUser: AppUser = {
+      id: 'usr-' + Date.now(),
+      email,
+      fullName: email.split('@')[0],
+      role: userRole
+    };
+    this.setUser(localUser);
+    return { user: localUser };
   }
 
   async resetPassword(email: string) {
     if (this.supabase) {
-      const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/admin'
-      });
-      if (error) throw error;
+      try {
+        const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin + '/admin'
+        });
+        if (error) throw new Error(error.message);
+      } catch (err: any) {
+        throw new Error(err.message || 'Password reset failed');
+      }
     }
     this.toastService.success('Reset Email Sent', `Password recovery link sent to ${email}`);
   }
 
   async signOut() {
     if (this.supabase) {
-      await this.supabase.auth.signOut();
+      try {
+        await this.supabase.auth.signOut();
+      } catch (err) {}
     }
-    this.currentUserSubject.next(null);
+    this.setUser(null);
     this.toastService.info('Signed Out', 'Logged out successfully.');
   }
 
   // Category & Product Methods
   getCategories(): Observable<Category[]> {
-    return of(MOCK_CATEGORIES);
+    return this.categories$;
+  }
+
+  addCategory(category: Partial<Category>) {
+    const slug = category.slug || (category.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const newCategory: Category = {
+      id: 'cat-' + Date.now(),
+      name: category.name || 'New Category',
+      slug: slug || 'category',
+      icon: category.icon || 'ri-cup-line'
+    };
+
+    const current = [...this.categoriesSubject.value, newCategory];
+    this.saveCategories(current);
+    this.toastService.success('Category Added', `${newCategory.name} created successfully.`);
+
+    if (this.supabase) {
+      this.supabase.from('categories').insert({
+        id: newCategory.id,
+        name: newCategory.name,
+        slug: newCategory.slug,
+        icon: newCategory.icon
+      }).then();
+    }
+  }
+
+  updateCategory(updated: Category) {
+    const current = this.categoriesSubject.value.map(c => c.id === updated.id ? updated : c);
+    this.saveCategories(current);
+    this.toastService.success('Category Updated', `${updated.name} updated.`);
+
+    if (this.supabase) {
+      this.supabase.from('categories').update({
+        name: updated.name,
+        slug: updated.slug,
+        icon: updated.icon
+      }).eq('id', updated.id).then();
+    }
+  }
+
+  deleteCategory(categoryId: string) {
+    const cat = this.categoriesSubject.value.find(c => c.id === categoryId);
+    const current = this.categoriesSubject.value.filter(c => c.id !== categoryId);
+    this.saveCategories(current);
+    this.toastService.info('Category Deleted', `${cat?.name || 'Category'} removed.`);
+
+    if (this.supabase) {
+      this.supabase.from('categories').delete().eq('id', categoryId).then();
+    }
   }
 
   getProducts(): Observable<Product[]> {
@@ -399,10 +731,12 @@ export class SupabaseService {
 
   // Orders Management
   createOrder(orderData: Partial<Order>): Observable<Order> {
+    const user = this.currentUserSubject.value;
     const newOrder: Order = {
       id: 'ORD-' + Math.floor(1000 + Math.random() * 9000),
-      userId: this.currentUserSubject.value?.id,
-      customerName: orderData.customerName || 'Valued Guest',
+      userId: user?.id || orderData.userId,
+      customerEmail: user?.email || orderData.customerEmail,
+      customerName: orderData.customerName || user?.fullName || 'Valued Guest',
       customerPhone: orderData.customerPhone || '',
       orderType: orderData.orderType || 'pickup',
       deliveryAddress: orderData.deliveryAddress,
@@ -416,18 +750,42 @@ export class SupabaseService {
     };
 
     const currentOrders = [newOrder, ...this.ordersSubject.value];
-    this.ordersSubject.next(currentOrders);
+    this.saveOrders(currentOrders);
+    this.saveLocalPlacedOrderId(newOrder.id);
 
     if (this.supabase) {
       this.supabase.from('orders').insert({
         id: newOrder.id,
+        user_id: newOrder.userId || null,
+        customer_email: newOrder.customerEmail || null,
         customer_name: newOrder.customerName,
         customer_phone: newOrder.customerPhone,
         order_type: newOrder.orderType,
-        delivery_address: newOrder.deliveryAddress,
+        delivery_address: newOrder.deliveryAddress || null,
+        items: JSON.stringify(newOrder.items),
+        subtotal: newOrder.subtotal,
+        tax: newOrder.tax,
+        discount: newOrder.discount,
         total_amount: newOrder.totalAmount,
-        status: newOrder.status
-      }).then();
+        status: newOrder.status,
+        created_at: newOrder.createdAt
+      }).then(({ error: orderError }) => {
+        if (newOrder.items && newOrder.items.length > 0) {
+          const itemRows = newOrder.items.map(item => ({
+            order_id: newOrder.id,
+            product_id: item.product?.id || 'prod-custom',
+            quantity: item.quantity || 1,
+            unit_price: item.unitPrice || 0,
+            selected_size: item.customization?.size || 'Standard'
+          }));
+
+          this.supabase?.from('order_items').insert(itemRows).then(({ error: itemsErr }) => {
+            if (itemsErr) {
+              console.warn('[AURA] order_items table insert note:', itemsErr.message);
+            }
+          });
+        }
+      });
     }
 
     return of(newOrder);
@@ -440,7 +798,7 @@ export class SupabaseService {
       }
       return o;
     });
-    this.ordersSubject.next(updated);
+    this.saveOrders(updated);
     this.toastService.success('Order Status Changed', `Order ${orderId} status set to ${status.toUpperCase()}`);
 
     if (this.supabase) {

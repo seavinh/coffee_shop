@@ -1,0 +1,96 @@
+@if (isOpen) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+    
+    <div class="relative w-full max-w-lg glass-panel p-8 rounded-3xl border border-amber-500/30 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+      
+      <div class="flex items-center justify-between border-b border-white/10 pb-4">
+        <div>
+          <span class="badge-gold">Category CRUD Management</span>
+          <h3 class="font-serif text-2xl font-bold text-cream mt-1">
+            {{ category ? 'Edit Menu Category' : 'Create New Menu Category' }}
+          </h3>
+        </div>
+        <button (click)="close.emit()" class="text-cream-muted hover:text-white border-0 bg-transparent text-lg cursor-pointer">
+          <i class="ri-close-line"></i>
+        </button>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="space-y-4">
+        
+        <div>
+          <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">Category Name</label>
+          <input 
+            type="text" 
+            [(ngModel)]="formData.name" 
+            (ngModelChange)="onNameChange()"
+            name="name" 
+            required 
+            placeholder="e.g. Nitro Drafts & Tonics"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-cream focus:outline-none focus:border-amber-400"
+          />
+        </div>
+
+        <div>
+          <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">URL Slug</label>
+          <input 
+            type="text" 
+            [(ngModel)]="formData.slug" 
+            name="slug" 
+            required 
+            placeholder="e.g. nitro-drafts"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-cream focus:outline-none focus:border-amber-400"
+          />
+        </div>
+
+        <div>
+          <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">
+            Category Icon (<a href="https://remixicon.com" target="_blank" class="underline text-amber-300">RemixIcon Class</a>)
+          </label>
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center text-xl shrink-0">
+              <i [class]="formData.icon || 'ri-cup-line'"></i>
+            </div>
+            <input 
+              type="text" 
+              [(ngModel)]="formData.icon" 
+              name="icon" 
+              required 
+              placeholder="ri-cup-line"
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs text-cream focus:outline-none focus:border-amber-400"
+            />
+          </div>
+
+          <!-- Preset Icon Selection Grid -->
+          <div class="mt-2">
+            <span class="text-[10px] text-cream-muted block mb-1.5 font-medium">Quick Icon Presets:</span>
+            <div class="grid grid-cols-4 sm:grid-cols-6 gap-2">
+              @for (preset of presetIcons; track preset.icon) {
+                <button 
+                  type="button" 
+                  (click)="selectIcon(preset.icon)"
+                  [class.bg-amber-500]="formData.icon === preset.icon"
+                  [class.text-black]="formData.icon === preset.icon"
+                  [class.text-cream]="formData.icon !== preset.icon"
+                  class="p-2 rounded-xl border border-white/10 bg-white/5 text-xs flex flex-col items-center gap-1 cursor-pointer transition-all hover:border-amber-400/50">
+                  <i [class]="preset.icon + ' text-base'"></i>
+                  <span class="text-[9px] font-semibold">{{ preset.label }}</span>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-white/10 flex items-center justify-end gap-3">
+          <button type="button" (click)="close.emit()" class="btn-secondary text-xs">
+            Cancel
+          </button>
+          <button type="submit" class="btn-primary text-xs">
+            <i class="ri-save-line"></i> Save Category
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+}

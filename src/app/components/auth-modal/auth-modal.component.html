@@ -59,6 +59,30 @@
               class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-cream focus:outline-none focus:border-amber-400"
             />
           </div>
+
+          <div>
+            <label class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-1">Select User Role</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button 
+                type="button"
+                (click)="selectedRole = 'customer'" 
+                [class.bg-amber-500]="selectedRole === 'customer'"
+                [class.text-black]="selectedRole === 'customer'"
+                [class.text-cream]="selectedRole !== 'customer'"
+                class="py-2 rounded-xl border border-white/10 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5">
+                <i class="ri-user-line"></i> Customer
+              </button>
+              <button 
+                type="button"
+                (click)="selectedRole = 'admin'" 
+                [class.bg-amber-500]="selectedRole === 'admin'"
+                [class.text-black]="selectedRole === 'admin'"
+                [class.text-cream]="selectedRole !== 'admin'"
+                class="py-2 rounded-xl border border-white/10 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5">
+                <i class="ri-shield-user-line"></i> Store Admin
+              </button>
+            </div>
+          </div>
         }
 
         <div>

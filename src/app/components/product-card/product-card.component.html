@@ -42,7 +42,7 @@
       <div>
         <span class="text-[10px] text-cream-muted uppercase tracking-wider block font-bold">Starting from</span>
         <div class="text-2xl font-extrabold text-amber-400 leading-none">
-          \${{ product.price.toFixed(2) }}
+          {{ currencyService.formatPrice(product.price) }}
         </div>
       </div>
 

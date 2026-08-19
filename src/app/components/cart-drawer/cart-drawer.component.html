@@ -45,7 +45,7 @@
                     </div>
 
                     <div class="flex items-center justify-between mt-3">
-                      <span class="text-sm font-extrabold text-amber-400">\${{ item.totalPrice.toFixed(2) }}</span>
+                      <span class="text-sm font-extrabold text-amber-400">{{ currencyService.formatPrice(item.totalPrice) }}</span>
                       
                       <div class="flex items-center gap-2 bg-black/40 border border-white/10 px-2 py-1 rounded-full text-xs">
                         <button (click)="updateQuantity(item.id, -1)" class="w-5 h-5 rounded-full hover:bg-white/10 text-cream flex items-center justify-center font-bold">-</button>
@@ -66,7 +66,7 @@
               <div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 text-amber-400 flex items-center justify-center text-3xl mx-auto">
                 <i class="ri-cup-line"></i>
               </div>
-              <h3 class="font-serif text-lg font-bold text-cream">Your cart is empty</h3>
+              <h3 class="font-serif text-xl font-bold text-cream">Your cart is empty</h3>
               <p class="text-xs text-cream-muted max-w-xs mx-auto">Discover our handcrafted beverages and freshly baked pastries to start an order.</p>
             </div>
           }
@@ -122,20 +122,20 @@
             <div class="space-y-1.5 pt-2 border-t border-white/10 text-xs">
               <div class="flex justify-between text-cream-muted">
                 <span>Subtotal</span>
-                <span>\${{ subtotal.toFixed(2) }}</span>
+                <span>{{ currencyService.formatPrice(subtotal) }}</span>
               </div>
               <div class="flex justify-between text-cream-muted">
                 <span>Estimated Tax (8%)</span>
-                <span>\${{ tax.toFixed(2) }}</span>
+                <span>{{ currencyService.formatPrice(tax) }}</span>
               </div>
               <div class="flex justify-between text-base font-extrabold text-cream pt-1">
                 <span>Total Amount</span>
-                <span class="text-amber-400">\${{ total.toFixed(2) }}</span>
+                <span class="text-amber-400">{{ currencyService.formatPrice(total) }}</span>
               </div>
             </div>
 
             <button (click)="onSubmitOrder()" class="btn-primary w-full text-sm">
-              <i class="ri-check-double-line"></i> Place Coffee Order (\${{ total.toFixed(2) }})
+              <i class="ri-check-double-line"></i> Place Coffee Order ({{ currencyService.formatPrice(total) }})
             </button>
           </div>
         }

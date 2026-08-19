@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Product } from '../../models/product.model';
 import { CartService } from '../../services/cart.service';
+import { CurrencyService } from '../../services/currency.service';
 import { SelectedCustomization } from '../../models/order.model';
 
 @Component({
@@ -23,7 +24,10 @@ export class ProductModalComponent implements OnChanges {
   specialNotes: string = '';
   quantity: number = 1;
 
-  constructor(private cartService: CartService) {}
+  constructor(
+    private cartService: CartService,
+    public currencyService: CurrencyService
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['product'] && this.product) {

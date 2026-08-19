@@ -12,12 +12,21 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Trigger to auto-create profile on user signup
+-- Trigger function to auto-create profile on user signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO public.profiles (id, email, full_name, role)
-  VALUES (new.id, new.email, new.raw_user_meta_data->>'full_name', 'customer');
+  VALUES (
+    new.id, 
+    new.email, 
+    COALESCE(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1)), 
+    COALESCE(new.raw_user_meta_data->>'role', 'customer')
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
+    full_name = EXCLUDED.full_name,
+    role = EXCLUDED.role;
   RETURN new;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -44,7 +53,7 @@ CREATE TABLE IF NOT EXISTS public.products (
   price NUMERIC(10,2) NOT NULL,
   image_url TEXT,
   rating NUMERIC(3,2) DEFAULT 5.0,
-  review_count INT DEFAULT 0,
+  reviewCount INT DEFAULT 0,
   roast_level TEXT,
   tags TEXT[],
   is_available BOOLEAN DEFAULT TRUE,
@@ -90,6 +99,10 @@ ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.order_items ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
+CREATE POLICY "Public profiles are viewable by everyone" ON public.profiles FOR SELECT USING (true);
+CREATE POLICY "Users can insert profiles" ON public.profiles FOR INSERT WITH CHECK (true);
+CREATE POLICY "Users can update profiles" ON public.profiles FOR UPDATE USING (true);
+
 CREATE POLICY "Public categories are viewable by everyone" ON public.categories FOR SELECT USING (true);
 CREATE POLICY "Public products are viewable by everyone" ON public.products FOR SELECT USING (true);
 CREATE POLICY "Anyone can insert products" ON public.products FOR INSERT WITH CHECK (true);
@@ -114,7 +127,7 @@ INSERT INTO public.categories (id, name, slug, icon) VALUES
 ON CONFLICT (id) DO NOTHING;
 
 -- Seed Data: Products
-INSERT INTO public.products (id, category_id, name, description, price, image_url, rating, review_count, roast_level, tags, is_available, is_featured) VALUES
+INSERT INTO public.products (id, category_id, name, description, price, image_url, rating, reviewCount, roast_level, tags, is_available, is_featured) VALUES
   ('prod-1', 'cat-1', 'AURA Velvet Vanilla Latte', 'Double shot signature espresso with Madagascar vanilla bean & oat milk.', 5.80, 'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&q=80&w=800', 4.90, 142, 'Medium', ARRAY['Bestseller', 'Oat Milk'], true, true),
   ('prod-2', 'cat-1', 'Smokey Smoked Honey Cappuccino', 'Rich dark espresso topped with foam & smoked wildflower honey.', 6.20, 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&q=80&w=800', 4.80, 98, 'Dark', ARRAY['Chef Special'], true, true),
   ('prod-3', 'cat-2', 'Nitro Cloud Cold Brew', '24-hour steep cold brew with nitrogen draft & vanilla cream foam.', 6.50, 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&q=80&w=800', 4.95, 210, 'Omni', ARRAY['Nitrogen Draft'], true, true),

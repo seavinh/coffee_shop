@@ -1,13 +1,7 @@
 <div class="max-w-7xl mx-auto px-4 lg:px-12 py-10 space-y-8 pb-24">
   <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/10 pb-6">
     <div>
-      <div class="flex items-center gap-2">
-        <span class="badge-gold"><i class="ri-shield-user-line"></i> Operations Center</span>
-        <span class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full font-extrabold flex items-center gap-1.5 shadow-sm">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Live Supabase Engine
-        </span>
-      </div>
-      <h1 class="font-serif text-3xl lg:text-5xl font-bold text-gradient mt-1">Admin Operations Center</h1>
+      <h1 class="font-serif text-3xl lg:text-5xl font-bold text-gradient">Admin Operations Center</h1>
     </div>
 
     <div class="flex items-center gap-4 text-xs">
@@ -17,7 +11,7 @@
       </div>
       <div class="glass-panel px-5 py-3 rounded-2xl text-center border border-white/10 shadow-lg">
         <span class="text-cream-muted text-[10px] uppercase font-bold tracking-wider block">Total Revenue</span>
-        <span class="text-2xl font-extrabold text-emerald-400">\${{ totalRevenue.toFixed(2) }}</span>
+        <span class="text-2xl font-extrabold text-emerald-400">{{ currencyService.formatPrice(totalRevenue) }}</span>
       </div>
     </div>
   </div>
@@ -39,6 +33,15 @@
       [class.text-cream]="activeTab !== 'products'"
       class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all border border-white/10 cursor-pointer flex items-center gap-2 shadow-sm">
       <i class="ri-shopping-bag-3-line"></i> Product Catalog CRUD ({{ products.length }})
+    </button>
+
+    <button 
+      (click)="activeTab = 'categories'"
+      [class.bg-amber-500]="activeTab === 'categories'"
+      [class.text-black]="activeTab === 'categories'"
+      [class.text-cream]="activeTab !== 'categories'"
+      class="px-5 py-2.5 rounded-xl text-xs font-bold transition-all border border-white/10 cursor-pointer flex items-center gap-2 shadow-sm">
+      <i class="ri-price-tag-3-line"></i> Categories CRUD ({{ categories.length }})
     </button>
 
     <button 
@@ -67,12 +70,17 @@
                 <h4 class="font-serif font-bold text-lg text-cream">{{ order.id }}</h4>
                 <p class="text-xs text-cream font-semibold">{{ order.customerName }} • {{ order.orderType | titlecase }}</p>
               </div>
-              <span class="text-amber-400 font-extrabold text-base">\${{ order.totalAmount.toFixed(2) }}</span>
+              <span class="text-amber-400 font-extrabold text-base">{{ currencyService.formatPrice(order.totalAmount) }}</span>
             </div>
 
-            <button (click)="updateOrderStatus(order.id, 'preparing')" class="btn-primary w-full !py-2.5 text-xs">
-              <i class="ri-fire-line"></i> Start Brewing (Preparing)
-            </button>
+            <div class="flex items-center gap-2">
+              <button (click)="openReceipt(order)" class="px-3 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-cream text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1">
+                <i class="ri-receipt-line text-amber-400"></i> Receipt
+              </button>
+              <button (click)="updateOrderStatus(order.id, 'preparing')" class="btn-primary flex-1 !py-2 text-xs">
+                <i class="ri-fire-line"></i> Start Brewing
+              </button>
+            </div>
           </div>
         }
       </div>
@@ -94,9 +102,14 @@
               <span class="badge-status preparing">PREPARING</span>
             </div>
 
-            <button (click)="updateOrderStatus(order.id, 'ready')" class="btn-primary w-full !py-2.5 text-xs !from-blue-600 !to-blue-400">
-              <i class="ri-checkbox-circle-line"></i> Mark Ready for Pickup
-            </button>
+            <div class="flex items-center gap-2">
+              <button (click)="openReceipt(order)" class="px-3 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-cream text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1">
+                <i class="ri-receipt-line text-amber-400"></i> Receipt
+              </button>
+              <button (click)="updateOrderStatus(order.id, 'ready')" class="btn-primary flex-1 !py-2 text-xs !from-blue-600 !to-blue-400">
+                <i class="ri-checkbox-circle-line"></i> Mark Ready
+              </button>
+            </div>
           </div>
         }
       </div>
@@ -115,11 +128,16 @@
                 <h4 class="font-serif font-bold text-base text-cream">{{ order.id }} - {{ order.customerName }}</h4>
                 <span [class]="'badge-status ' + order.status">{{ order.status.toUpperCase() }}</span>
               </div>
-              @if (order.status === 'ready') {
-                <button (click)="updateOrderStatus(order.id, 'completed')" class="btn-secondary !py-1 !px-3 text-xs">
-                  Complete
+              <div class="flex items-center gap-2">
+                <button (click)="openReceipt(order)" class="px-2.5 py-1 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-cream text-[11px] font-semibold cursor-pointer transition-colors flex items-center gap-1">
+                  <i class="ri-receipt-line text-amber-400"></i> Receipt
                 </button>
-              }
+                @if (order.status === 'ready') {
+                  <button (click)="updateOrderStatus(order.id, 'completed')" class="btn-secondary !py-1 !px-3 text-xs">
+                    Complete
+                  </button>
+                }
+              </div>
             </div>
           </div>
         }
@@ -158,7 +176,7 @@
                     </div>
                   </td>
                   <td class="p-4 uppercase font-bold text-[10px] text-cream-muted">{{ getCategoryName(prod.categoryId) }}</td>
-                  <td class="p-4 font-bold text-amber-400 text-sm">\${{ prod.price.toFixed(2) }}</td>
+                  <td class="p-4 font-bold text-amber-400 text-sm">{{ currencyService.formatPrice(prod.price) }}</td>
                   <td class="p-4">
                     <button 
                       (click)="toggleStock(prod.id)"
@@ -179,6 +197,55 @@
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+  }
+
+  @if (activeTab === 'categories') {
+    <div class="space-y-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h3 class="font-serif text-2xl font-bold text-cream">Menu Categories Management</h3>
+          <p class="text-xs text-cream-muted font-light">Create, organize, and manage food & beverage categories displayed in the store menu.</p>
+        </div>
+        <button (click)="openAddCategoryModal()" class="btn-primary text-xs !py-2.5 !px-5 shadow-lg shadow-amber-500/20">
+          <i class="ri-add-line"></i> Add New Category
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (cat of categories; track cat.id) {
+          <div class="glass-panel p-6 rounded-3xl border border-white/10 hover:border-amber-500/30 transition-all duration-300 space-y-4 shadow-xl group">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                  <i [class]="cat.icon"></i>
+                </div>
+                <div>
+                  <h4 class="font-serif font-bold text-lg text-cream">{{ cat.name }}</h4>
+                  <span class="text-[10px] text-cream-muted font-mono bg-white/5 px-2 py-0.5 rounded border border-white/10">
+                    /{{ cat.slug }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-3 border-t border-white/10 text-xs">
+              <span class="text-[11px] text-amber-400/90 font-bold bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
+                <i class="ri-cup-line"></i> {{ getProductCountByCategory(cat.id) }} Products
+              </span>
+
+              <div class="flex items-center gap-2">
+                <button (click)="openEditCategoryModal(cat)" class="px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-cream text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1">
+                  <i class="ri-edit-line text-amber-400"></i> Edit
+                </button>
+                <button (click)="deleteCategory(cat.id)" class="px-3 py-1.5 rounded-xl border border-rose-500/20 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1">
+                  <i class="ri-delete-bin-line"></i> Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        }
       </div>
     </div>
   }
@@ -206,7 +273,21 @@
   <app-product-crud-modal
     [isOpen]="isCrudModalOpen"
     [product]="editingProduct"
+    [categories]="categories"
     (close)="isCrudModalOpen = false"
     (save)="handleSaveProduct($event)">
   </app-product-crud-modal>
+
+  <app-category-crud-modal
+    [isOpen]="isCategoryModalOpen"
+    [category]="editingCategory"
+    (close)="isCategoryModalOpen = false"
+    (save)="handleSaveCategory($event)">
+  </app-category-crud-modal>
+
+  <app-receipt-modal
+    [isOpen]="isReceiptOpen"
+    [order]="selectedReceiptOrder"
+    (close)="isReceiptOpen = false">
+  </app-receipt-modal>
 </div>

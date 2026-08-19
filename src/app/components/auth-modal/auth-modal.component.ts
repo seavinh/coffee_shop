@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SupabaseService } from '../../services/supabase.service';
+import { SupabaseService, UserRole } from '../../services/supabase.service';
 import { ToastService } from '../../services/toast.service';
 
 type AuthMode = 'login' | 'register' | 'forgot';
@@ -20,6 +20,7 @@ export class AuthModalComponent {
   fullName = '';
   email = '';
   password = '';
+  selectedRole: UserRole = 'customer';
   loading = false;
 
   constructor(
@@ -29,7 +30,7 @@ export class AuthModalComponent {
 
   getButtonText(): string {
     if (this.mode === 'login') return 'Sign In to Account';
-    if (this.mode === 'register') return 'Create New Account';
+    if (this.mode === 'register') return `Register as ${this.selectedRole.toUpperCase()}`;
     return 'Send Password Recovery Email';
   }
 
@@ -46,11 +47,12 @@ export class AuthModalComponent {
     try {
       if (this.mode === 'login') {
         await this.supabaseService.signIn(this.email, this.password);
-        this.toastService.success('Welcome Back!', `Signed in as ${this.email}`);
+        const role = this.supabaseService.getUserRole();
+        this.toastService.success('Welcome Back!', `Signed in as [${role.toUpperCase()}] ${this.email}`);
         this.close.emit();
       } else if (this.mode === 'register') {
-        await this.supabaseService.signUp(this.email, this.password, this.fullName);
-        this.toastService.success('Account Created', 'Welcome to the AURA Coffee community!');
+        await this.supabaseService.signUp(this.email, this.password, this.fullName, this.selectedRole);
+        this.toastService.success('Account Created', `Registered successfully as ${this.selectedRole.toUpperCase()}!`);
         this.close.emit();
       } else if (this.mode === 'forgot') {
         await this.supabaseService.resetPassword(this.email);

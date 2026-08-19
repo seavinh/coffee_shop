@@ -1,90 +1,281 @@
-<div class="max-w-4xl mx-auto px-4 lg:px-8 py-10 space-y-8 pb-24">
-  <div class="space-y-2">
-    <span class="badge-gold">Live Tracking</span>
-    <h1 class="font-serif text-3xl lg:text-4xl font-bold text-gradient">Your Coffee Orders</h1>
-    <p class="text-xs text-cream-muted font-light">Monitor your order status in real time from bean grinding to final foam.</p>
+<div class="max-w-5xl mx-auto px-4 lg:px-8 py-10 space-y-8 pb-24">
+  
+  <!-- Header Section -->
+  <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/10 pb-6">
+    <div class="space-y-1">
+      <span class="badge-gold"><i class="ri-cup-line"></i> Real-time Brew Tracker</span>
+      <h1 class="font-serif text-3xl lg:text-4xl font-bold text-gradient">Your Order Status</h1>
+      <p class="text-xs text-cream-muted font-light">
+        @if (currentUser) {
+          Tracking orders for <span class="text-amber-400 font-semibold">{{ currentUser.fullName || currentUser.email }}</span>
+        } @else {
+          Tracking orders placed from this browser. Sign in to sync across all devices.
+        }
+      </p>
+    </div>
+
+    <!-- Quick Action / Admin Perspective Switcher -->
+    <div class="flex items-center gap-2">
+      @if (isAdmin) {
+        <div class="flex items-center bg-white/5 border border-white/10 p-1 rounded-xl text-xs font-bold">
+          <button 
+            (click)="activeTab = 'my'" 
+            [class.bg-amber-500]="activeTab === 'my'"
+            [class.text-black]="activeTab === 'my'"
+            [class.text-cream]="activeTab !== 'my'"
+            class="px-3 py-1.5 rounded-lg transition-all border-0 cursor-pointer">
+            My Orders ({{ myOrders.length }})
+          </button>
+          <button 
+            (click)="activeTab = 'all'" 
+            [class.bg-amber-500]="activeTab === 'all'"
+            [class.text-black]="activeTab === 'all'"
+            [class.text-cream]="activeTab !== 'all'"
+            class="px-3 py-1.5 rounded-lg transition-all border-0 cursor-pointer">
+            All Store Orders ({{ orders.length }})
+          </button>
+        </div>
+      }
+
+      <a routerLink="/menu" class="btn-primary text-xs !py-2 !px-4">
+        <i class="ri-restaurant-2-line"></i> Order More Coffee
+      </a>
+    </div>
   </div>
 
+  <!-- Search & Filter Controls -->
+  <div class="glass-panel p-4 rounded-2xl border border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg">
+    
+    <!-- Order Lookup Search Bar -->
+    <div class="relative w-full md:w-80">
+      <i class="ri-search-line absolute left-3.5 top-1/2 -translate-y-1/2 text-amber-400 text-sm"></i>
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        placeholder="Search Order ID (ORD-...), phone, item..."
+        class="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs text-cream focus:outline-none focus:border-amber-400"
+      />
+    </div>
+
+    <!-- Status Filter Buttons -->
+    <div class="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-none text-xs">
+      <button 
+        (click)="selectedStatus = 'all'"
+        [class.bg-amber-500]="selectedStatus === 'all'"
+        [class.text-black]="selectedStatus === 'all'"
+        [class.text-cream]="selectedStatus !== 'all'"
+        class="px-3 py-1.5 rounded-xl border border-white/10 font-bold transition-all cursor-pointer whitespace-nowrap">
+        All
+      </button>
+
+      <button 
+        (click)="selectedStatus = 'pending'"
+        [class.bg-amber-500]="selectedStatus === 'pending'"
+        [class.text-black]="selectedStatus === 'pending'"
+        [class.text-cream]="selectedStatus !== 'pending'"
+        class="px-3 py-1.5 rounded-xl border border-white/10 font-bold transition-all cursor-pointer whitespace-nowrap">
+        Received
+      </button>
+
+      <button 
+        (click)="selectedStatus = 'preparing'"
+        [class.bg-amber-500]="selectedStatus === 'preparing'"
+        [class.text-black]="selectedStatus === 'preparing'"
+        [class.text-cream]="selectedStatus !== 'preparing'"
+        class="px-3 py-1.5 rounded-xl border border-white/10 font-bold transition-all cursor-pointer whitespace-nowrap">
+        Brewing
+      </button>
+
+      <button 
+        (click)="selectedStatus = 'ready'"
+        [class.bg-amber-500]="selectedStatus === 'ready'"
+        [class.text-black]="selectedStatus === 'ready'"
+        [class.text-cream]="selectedStatus !== 'ready'"
+        class="px-3 py-1.5 rounded-xl border border-white/10 font-bold transition-all cursor-pointer whitespace-nowrap">
+        Ready
+      </button>
+
+      <button 
+        (click)="selectedStatus = 'completed'"
+        [class.bg-amber-500]="selectedStatus === 'completed'"
+        [class.text-black]="selectedStatus === 'completed'"
+        [class.text-cream]="selectedStatus !== 'completed'"
+        class="px-3 py-1.5 rounded-xl border border-white/10 font-bold transition-all cursor-pointer whitespace-nowrap">
+        Completed
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Orders Timeline List -->
   <div class="space-y-6">
-    @if (orders.length > 0) {
-      @for (order of orders; track order.id) {
-        <div class="glass-panel rounded-3xl border border-white/10 p-6 space-y-6">
+    @if (displayedOrders.length > 0) {
+      @for (order of displayedOrders; track order.id) {
+        <div class="glass-panel rounded-3xl border border-white/10 p-6 sm:p-8 space-y-6 shadow-2xl hover:border-amber-500/30 transition-all duration-300">
+          
+          <!-- Top Card Header -->
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
-            <div>
+            <div class="space-y-1">
               <div class="flex items-center gap-3">
-                <h3 class="font-serif text-xl font-bold text-cream">{{ order.id }}</h3>
-                <span [class]="'badge-status ' + order.status">
-                  <i class="ri-checkbox-blank-circle-fill text-[8px]"></i>
-                  {{ order.status.toUpperCase() }}
+                <h3 class="font-serif text-xl sm:text-2xl font-bold text-cream">{{ order.id }}</h3>
+                <span [class]="'px-3 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border ' + getStatusBadgeClass(order.status)">
+                  <i class="ri-checkbox-blank-circle-fill text-[7px] mr-1"></i>
+                  {{ order.status }}
                 </span>
               </div>
-              <p class="text-xs text-cream-muted mt-1">Placed on {{ order.createdAt | date:'medium' }}</p>
+              <p class="text-xs text-cream-muted">
+                Placed on {{ order.createdAt | date:'medium' }} • 
+                <span class="text-amber-400 font-semibold uppercase">{{ order.orderType }}</span>
+                @if (order.deliveryAddress) {
+                  <span class="text-cream-muted ml-1">({{ order.deliveryAddress }})</span>
+                }
+              </p>
             </div>
 
-            <div class="text-left sm:text-right">
+            <div class="text-left sm:text-right flex sm:flex-col items-baseline sm:items-end justify-between w-full sm:w-auto">
               <span class="text-xs text-cream-muted block">Total Paid</span>
-              <span class="text-xl font-extrabold text-amber-400">\${{ order.totalAmount.toFixed(2) }}</span>
+              <span class="text-2xl font-extrabold text-amber-400">{{ currencyService.formatPrice(order.totalAmount) }}</span>
             </div>
           </div>
 
+          <!-- 4-Step Interactive Brew Progress Bar -->
           <div class="py-2">
-            <div class="grid grid-cols-4 gap-2 text-center text-xs">
+            <div class="grid grid-cols-4 gap-2 text-center text-xs relative">
               <div class="space-y-2">
-                <div [class]="getStepClass(order.status, 1)" class="w-10 h-10 rounded-full mx-auto flex items-center justify-center border text-sm transition-all">
+                <div [class]="getStepClass(order.status, 1)" class="w-11 h-11 rounded-full mx-auto flex items-center justify-center border text-base transition-all">
                   <i class="ri-file-list-3-line"></i>
                 </div>
-                <span [class]="getStepTextClass(order.status, 1)" class="block font-bold">Received</span>
+                <span [class]="getStepTextClass(order.status, 1)" class="block text-[11px] font-bold">1. Received</span>
               </div>
 
               <div class="space-y-2">
-                <div [class]="getStepClass(order.status, 2)" class="w-10 h-10 rounded-full mx-auto flex items-center justify-center border text-sm transition-all">
+                <div [class]="getStepClass(order.status, 2)" class="w-11 h-11 rounded-full mx-auto flex items-center justify-center border text-base transition-all">
                   <i class="ri-fire-line"></i>
                 </div>
-                <span [class]="getStepTextClass(order.status, 2)" class="block font-bold">Brewing</span>
+                <span [class]="getStepTextClass(order.status, 2)" class="block text-[11px] font-bold">2. Brewing</span>
               </div>
 
               <div class="space-y-2">
-                <div [class]="getStepClass(order.status, 3)" class="w-10 h-10 rounded-full mx-auto flex items-center justify-center border text-sm transition-all">
+                <div [class]="getStepClass(order.status, 3)" class="w-11 h-11 rounded-full mx-auto flex items-center justify-center border text-base transition-all">
                   <i class="ri-cup-line"></i>
                 </div>
-                <span [class]="getStepTextClass(order.status, 3)" class="block font-bold">Ready</span>
+                <span [class]="getStepTextClass(order.status, 3)" class="block text-[11px] font-bold">3. Ready</span>
               </div>
 
               <div class="space-y-2">
-                <div [class]="getStepClass(order.status, 4)" class="w-10 h-10 rounded-full mx-auto flex items-center justify-center border text-sm transition-all">
+                <div [class]="getStepClass(order.status, 4)" class="w-11 h-11 rounded-full mx-auto flex items-center justify-center border text-base transition-all">
                   <i class="ri-checkbox-circle-line"></i>
                 </div>
-                <span [class]="getStepTextClass(order.status, 4)" class="block font-bold">Completed</span>
+                <span [class]="getStepTextClass(order.status, 4)" class="block text-[11px] font-bold">4. Completed</span>
               </div>
             </div>
           </div>
 
-          <div class="bg-black/30 border border-white/5 rounded-2xl p-4 space-y-3 text-xs">
-            <div class="flex items-center justify-between text-cream font-bold border-b border-white/5 pb-2">
-              <span>Customer: {{ order.customerName }} ({{ order.orderType | titlecase }})</span>
-              <span class="text-amber-400">{{ order.customerPhone }}</span>
+          <!-- Ordered Items List -->
+          <div class="bg-black/40 border border-white/5 rounded-2xl p-5 space-y-3 text-xs">
+            <div class="flex items-center justify-between text-cream font-bold border-b border-white/10 pb-2.5">
+              <span>Items Ordered ({{ order.items.length }})</span>
+              <span class="text-amber-400 font-normal">Contact: {{ order.customerPhone || 'Counter Pickup' }}</span>
             </div>
             
-            <div class="space-y-2 pt-2">
+            <div class="space-y-3 pt-1">
               @for (item of order.items; track item.id) {
-                <div class="flex justify-between items-center text-cream">
-                  <div class="flex items-center gap-2">
-                    <span class="font-bold text-amber-400">{{ item.quantity }}x</span>
-                    <span>{{ item.product.name }}</span>
+                <div class="flex items-start justify-between gap-4 text-cream">
+                  <div class="space-y-1">
+                    <div class="flex items-center gap-2 font-bold text-sm">
+                      <span class="text-amber-400">{{ item.quantity }}x</span>
+                      <span>{{ item.product.name }}</span>
+                    </div>
+                    
+                    <!-- Customization Tags -->
+                    @if (item.customization) {
+                      <div class="flex flex-wrap gap-1.5 text-[10px] text-cream-muted">
+                        @if (item.customization.size) {
+                          <span class="bg-white/5 border border-white/10 px-2 py-0.5 rounded">{{ item.customization.size }}</span>
+                        }
+                        @if (item.customization.milk) {
+                          <span class="bg-white/5 border border-white/10 px-2 py-0.5 rounded">{{ item.customization.milk }}</span>
+                        }
+                        @if (item.customization.sweetness) {
+                          <span class="bg-white/5 border border-white/10 px-2 py-0.5 rounded">{{ item.customization.sweetness }}</span>
+                        }
+                        @if (item.customization.temperature) {
+                          <span class="bg-white/5 border border-white/10 px-2 py-0.5 rounded">{{ item.customization.temperature }}</span>
+                        }
+                        @if (item.customization.extraShots > 0) {
+                          <span class="bg-amber-500/10 border border-amber-500/20 text-amber-400 px-2 py-0.5 rounded">+{{ item.customization.extraShots }} Extra Shot(s)</span>
+                        }
+                        @if (item.customization.specialNotes) {
+                          <span class="italic text-amber-300 block w-full mt-0.5">Note: "{{ item.customization.specialNotes }}"</span>
+                        }
+                      </div>
+                    }
                   </div>
-                  <span class="font-semibold">\${{ item.totalPrice.toFixed(2) }}</span>
+                  
+                  <span class="font-bold text-amber-400 text-sm whitespace-nowrap">
+                    {{ currencyService.formatPrice(item.totalPrice) }}
+                  </span>
                 </div>
               }
             </div>
           </div>
+
+          <!-- Bottom Action Buttons -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+            <span class="text-[11px] text-cream-muted">
+              Need assistance? Call our Barista counter at <span class="text-amber-400 font-bold">+1 (415) 555-0192</span>
+            </span>
+
+            <div class="flex items-center gap-2">
+              <button (click)="openReceipt(order)" class="px-3.5 py-2 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-xs font-bold cursor-pointer transition-all flex items-center gap-1.5 shadow-sm">
+                <i class="ri-receipt-line text-sm"></i> View Receipt
+              </button>
+
+              <button (click)="reorder(order)" class="btn-secondary !py-2 !px-4 text-xs flex items-center gap-1.5">
+                <i class="ri-repeat-line text-amber-400"></i> Reorder Items
+              </button>
+            </div>
+          </div>
+
         </div>
       }
     } @else {
-      <div class="glass-panel p-12 rounded-3xl text-center space-y-4">
-        <i class="ri-history-line text-4xl text-amber-400"></i>
-        <h3 class="font-serif text-xl font-bold text-cream">No Active Orders Found</h3>
-        <p class="text-xs text-cream-muted">Order a fresh espresso or cold brew to start tracking!</p>
+      <!-- Empty State -->
+      <div class="glass-panel p-16 rounded-3xl text-center space-y-5 max-w-md mx-auto border border-white/10 shadow-2xl">
+        <div class="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center text-3xl mx-auto shadow-lg">
+          <i class="ri-file-search-line"></i>
+        </div>
+        <div class="space-y-1">
+          <h3 class="font-serif text-2xl font-bold text-cream">No Orders Found</h3>
+          <p class="text-xs text-cream-muted">
+            @if (searchQuery) {
+              No orders matched your search keyword "{{ searchQuery }}".
+            } @else if (!currentUser) {
+              You haven't placed any orders on this device yet. Check out our artisanal menu or sign in to link your account!
+            } @else {
+              You don't have any active orders under your account right now.
+            }
+          </p>
+        </div>
+
+        <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+          @if (searchQuery) {
+            <button (click)="searchQuery = ''" class="btn-secondary text-xs w-full sm:w-auto">
+              Clear Search
+            </button>
+          }
+          <a routerLink="/menu" class="btn-primary text-xs w-full sm:w-auto justify-center">
+            <i class="ri-cup-line"></i> Explore Menu & Order
+          </a>
+        </div>
       </div>
     }
   </div>
+
+  <app-receipt-modal
+    [isOpen]="isReceiptOpen"
+    [order]="selectedReceiptOrder"
+    (close)="isReceiptOpen = false">
+  </app-receipt-modal>
+
 </div>
