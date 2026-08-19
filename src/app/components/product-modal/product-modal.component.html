@@ -3,11 +3,12 @@
     
     <div class="relative w-full max-w-xl glass-panel rounded-3xl border border-amber-500/30 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
       
+      <!-- Modal Header Banner -->
       <div class="relative h-44 flex-shrink-0">
         <img [src]="product.imageUrl" [alt]="product.name" class="w-full h-full object-cover"/>
         <div class="absolute inset-0 bg-gradient-to-t from-[#1C130D] via-[#1C130D]/60 to-transparent"></div>
         
-        <button (click)="close.emit()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-amber-400 hover:text-black transition-colors">
+        <button (click)="close.emit()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-amber-400 hover:text-black transition-colors cursor-pointer">
           <i class="ri-close-line text-lg"></i>
         </button>
 
@@ -18,109 +19,120 @@
         </div>
       </div>
 
+      <!-- Customization Scroll Body -->
       <div class="p-6 overflow-y-auto space-y-6 flex-grow">
         
-        @if (product.customization?.sizes?.length) {
-          <div>
-            <label class="text-xs font-bold uppercase tracking-wider text-amber-400 block mb-2">
-              <i class="ri-cup-line"></i> Select Size
-            </label>
-            <div class="grid grid-cols-3 gap-3">
-              @for (sizeOpt of product.customization?.sizes; track sizeOpt.label) {
-                <button 
-                  (click)="selectedSize = sizeOpt"
-                  [class.border-amber-400]="selectedSize === sizeOpt"
-                  [class.bg-amber-500]="selectedSize === sizeOpt"
-                  [class.text-black]="selectedSize === sizeOpt"
-                  class="p-3 rounded-xl border border-white/10 text-center cursor-pointer transition-all hover:border-amber-400/50">
-                  <span class="block text-xs font-bold text-cream">{{ sizeOpt.label }}</span>
-                  <span class="block text-[10px] text-amber-400 font-semibold mt-1">
-                    {{ sizeOpt.priceExtra > 0 ? '+' + currencyService.formatPrice(sizeOpt.priceExtra) : 'Included' }}
-                  </span>
-                </button>
-              }
+        <!-- Size Options -->
+        @if (product.customization?.sizes; as sizes) {
+          @if (sizes.length > 0) {
+            <div>
+              <label class="text-xs font-bold uppercase tracking-wider text-amber-400 block mb-2">
+                <i class="ri-cup-line"></i> Select Size
+              </label>
+              <div class="grid grid-cols-3 gap-3">
+                @for (sizeOpt of sizes; track sizeOpt.label) {
+                  <button 
+                    type="button"
+                    (click)="selectedSize = sizeOpt"
+                    [ngClass]="selectedSize?.label === sizeOpt.label ? 'border-amber-400 bg-amber-500 text-black font-extrabold shadow-md shadow-amber-500/20' : 'border-white/10 text-cream bg-white/5 hover:border-amber-400/50'"
+                    class="p-3 rounded-xl border text-center cursor-pointer transition-all">
+                    <span class="block text-xs font-bold">{{ sizeOpt.label }}</span>
+                    <span [ngClass]="selectedSize?.label === sizeOpt.label ? 'text-black/80 font-bold' : 'text-amber-400 font-semibold'" class="block text-[10px] mt-1">
+                      {{ sizeOpt.priceExtra > 0 ? '+' + currencyService.formatPrice(sizeOpt.priceExtra) : 'Included' }}
+                    </span>
+                  </button>
+                }
+              </div>
             </div>
-          </div>
+          }
         }
 
-        @if (product.customization?.temperatures?.length) {
-          <div>
-            <label class="text-xs font-bold uppercase tracking-wider text-amber-400 block mb-2">
-              <i class="ri-temp-hot-line"></i> Temperature
-            </label>
-            <div class="flex gap-3">
-              @for (temp of product.customization?.temperatures; track temp) {
-                <button 
-                  (click)="selectedTemperature = temp"
-                  [class.border-amber-400]="selectedTemperature === temp"
-                  [class.bg-amber-500]="selectedTemperature === temp"
-                  [class.text-black]="selectedTemperature === temp"
-                  class="flex-1 py-2.5 px-4 rounded-xl border border-white/10 text-xs font-bold text-cream flex items-center justify-center gap-2 cursor-pointer transition-all">
-                  <i [class]="temp === 'Hot' ? 'ri-fire-line text-red-400' : 'ri-snowflake-line text-blue-400'"></i>
-                  {{ temp }}
-                </button>
-              }
+        <!-- Temperature Selection -->
+        @if (product.customization?.temperatures; as temps) {
+          @if (temps.length > 0) {
+            <div>
+              <label class="text-xs font-bold uppercase tracking-wider text-amber-400 block mb-2">
+                <i class="ri-temp-hot-line"></i> Temperature
+              </label>
+              <div class="flex gap-3">
+                @for (temp of temps; track temp) {
+                  <button 
+                    type="button"
+                    (click)="selectedTemperature = temp"
+                    [ngClass]="selectedTemperature === temp ? 'border-amber-400 bg-amber-500 text-black font-extrabold shadow-md shadow-amber-500/20' : 'border-white/10 text-cream bg-white/5 hover:border-amber-400/50'"
+                    class="flex-1 py-2.5 px-4 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-all">
+                    <i [class]="temp === 'Hot' ? 'ri-fire-line text-red-400' : 'ri-snowflake-line text-blue-400'"></i>
+                    {{ temp }}
+                  </button>
+                }
+              </div>
             </div>
-          </div>
+          }
         }
 
-        @if (product.customization?.milkChoices?.length) {
-          <div>
-            <label class="text-xs font-bold uppercase tracking-wider text-amber-400 block mb-2">
-              <i class="ri-drop-line"></i> Milk Selection
-            </label>
-            <div class="grid grid-cols-2 gap-3">
-              @for (milkOpt of product.customization?.milkChoices; track milkOpt.label) {
-                <button 
-                  (click)="selectedMilk = milkOpt"
-                  [class.border-amber-400]="selectedMilk === milkOpt"
-                  [class.bg-amber-500]="selectedMilk === milkOpt"
-                  [class.text-black]="selectedMilk === milkOpt"
-                  class="p-3 rounded-xl border border-white/10 text-left flex items-center justify-between cursor-pointer transition-all hover:border-amber-400/50">
-                  <span class="text-xs font-semibold text-cream">{{ milkOpt.label }}</span>
-                  <span class="text-[10px] text-amber-400 font-bold">
-                    {{ milkOpt.priceExtra > 0 ? '+' + currencyService.formatPrice(milkOpt.priceExtra) : 'Free' }}
-                  </span>
-                </button>
-              }
+        <!-- Milk Selection -->
+        @if (product.customization?.milkChoices; as milks) {
+          @if (milks.length > 0) {
+            <div>
+              <label class="text-xs font-bold uppercase tracking-wider text-amber-400 block mb-2">
+                <i class="ri-drop-line"></i> Milk Selection
+              </label>
+              <div class="grid grid-cols-2 gap-3">
+                @for (milkOpt of milks; track milkOpt.label) {
+                  <button 
+                    type="button"
+                    (click)="selectedMilk = milkOpt"
+                    [ngClass]="selectedMilk?.label === milkOpt.label ? 'border-amber-400 bg-amber-500 text-black font-extrabold shadow-md shadow-amber-500/20' : 'border-white/10 text-cream bg-white/5 hover:border-amber-400/50'"
+                    class="p-3 rounded-xl border text-left flex items-center justify-between cursor-pointer transition-all">
+                    <span class="text-xs font-semibold">{{ milkOpt.label }}</span>
+                    <span [ngClass]="selectedMilk?.label === milkOpt.label ? 'text-black/80 font-bold' : 'text-amber-400 font-bold'" class="text-[10px]">
+                      {{ milkOpt.priceExtra > 0 ? '+' + currencyService.formatPrice(milkOpt.priceExtra) : 'Free' }}
+                    </span>
+                  </button>
+                }
+              </div>
             </div>
-          </div>
+          }
         }
 
-        @if (product.customization?.sweetnessLevels?.length) {
-          <div>
-            <label class="text-xs font-bold uppercase tracking-wider text-amber-400 block mb-2">
-              <i class="ri-cake-2-line"></i> Sweetness Level
-            </label>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              @for (swt of product.customization?.sweetnessLevels; track swt) {
-                <button 
-                  (click)="selectedSweetness = swt"
-                  [class.border-amber-400]="selectedSweetness === swt"
-                  [class.bg-amber-500]="selectedSweetness === swt"
-                  [class.text-black]="selectedSweetness === swt"
-                  class="py-2 px-2 rounded-lg border border-white/10 text-center text-xs font-medium text-cream cursor-pointer transition-all">
-                  {{ swt }}
-                </button>
-              }
+        <!-- Sweetness Levels -->
+        @if (product.customization?.sweetnessLevels; as sweetnessList) {
+          @if (sweetnessList.length > 0) {
+            <div>
+              <label class="text-xs font-bold uppercase tracking-wider text-amber-400 block mb-2">
+                <i class="ri-cake-2-line"></i> Sweetness Level
+              </label>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                @for (swt of sweetnessList; track swt) {
+                  <button 
+                    type="button"
+                    (click)="selectedSweetness = swt"
+                    [ngClass]="selectedSweetness === swt ? 'border-amber-400 bg-amber-500 text-black font-extrabold shadow-md shadow-amber-500/20' : 'border-white/10 text-cream bg-white/5 hover:border-amber-400/50'"
+                    class="py-2 px-2 rounded-lg border text-center text-xs font-medium cursor-pointer transition-all">
+                    {{ swt }}
+                  </button>
+                }
+              </div>
             </div>
-          </div>
+          }
         }
 
-        @if (product.customization?.extraShotPrice) {
+        <!-- Extra Espresso Shots -->
+        @if (product.customization?.extraShotPrice; as shotPrice) {
           <div class="flex items-center justify-between p-3 rounded-xl border border-white/10 bg-white/5">
             <div>
               <span class="text-xs font-bold text-cream block">Extra Espresso Shot</span>
-              <span class="text-[10px] text-amber-400">+{{ currencyService.formatPrice(product.customization?.extraShotPrice || 0) }} per shot</span>
+              <span class="text-[10px] text-amber-400">+{{ currencyService.formatPrice(shotPrice) }} per shot</span>
             </div>
             <div class="flex items-center gap-3">
-              <button (click)="changeShots(-1)" class="w-8 h-8 rounded-full border border-white/20 text-white flex items-center justify-center font-bold">-</button>
+              <button type="button" (click)="changeShots(-1)" class="w-8 h-8 rounded-full border border-white/20 text-white flex items-center justify-center font-bold hover:bg-white/10 cursor-pointer">-</button>
               <span class="font-bold text-amber-400 text-sm w-4 text-center">{{ extraShots }}</span>
-              <button (click)="changeShots(1)" class="w-8 h-8 rounded-full border border-amber-500/40 text-amber-400 flex items-center justify-center font-bold">+</button>
+              <button type="button" (click)="changeShots(1)" class="w-8 h-8 rounded-full border border-amber-500/40 text-amber-400 flex items-center justify-center font-bold hover:bg-amber-500/10 cursor-pointer">+</button>
             </div>
           </div>
         }
 
+        <!-- Special Instructions -->
         <div>
           <label class="text-xs font-bold uppercase tracking-wider text-amber-400 block mb-1">
             Special Instructions
@@ -129,18 +141,19 @@
             type="text" 
             [(ngModel)]="specialNotes" 
             placeholder="e.g., Extra hot, light foam..."
-            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-cream focus:outline-none focus:border-amber-400"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-cream focus:outline-none focus:border-amber-400 placeholder:text-cream-muted/50"
           />
         </div>
 
       </div>
 
+      <!-- Modal Footer / Order Action -->
       <div class="p-6 border-t border-white/10 bg-black/40 flex items-center justify-between gap-4">
         <div class="flex items-center gap-4">
           <div class="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">
-            <button (click)="quantity = mathMax(1, quantity - 1)" class="text-cream-muted hover:text-white border-0 bg-transparent text-sm cursor-pointer font-bold">-</button>
+            <button type="button" (click)="quantity = mathMax(1, quantity - 1)" class="text-cream-muted hover:text-white border-0 bg-transparent text-sm cursor-pointer font-bold px-1">-</button>
             <span class="font-bold text-amber-400 text-sm px-1">{{ quantity }}</span>
-            <button (click)="quantity = quantity + 1" class="text-cream-muted hover:text-white border-0 bg-transparent text-sm cursor-pointer font-bold">+</button>
+            <button type="button" (click)="quantity = quantity + 1" class="text-cream-muted hover:text-white border-0 bg-transparent text-sm cursor-pointer font-bold px-1">+</button>
           </div>
 
           <div>
@@ -149,7 +162,7 @@
           </div>
         </div>
 
-        <button (click)="onAddToCart()" class="btn-primary flex-grow max-w-[220px]">
+        <button type="button" (click)="onAddToCart()" class="btn-primary flex-grow max-w-[220px]">
           <i class="ri-shopping-bag-line"></i> Add to Order
         </button>
       </div>
@@ -158,3 +171,4 @@
 
   </div>
 }
+
